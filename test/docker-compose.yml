@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  system:
+    command: go test -count 1 -v ./...
+    environment:
+      - PRODUCT_READ_API_URL=http://product-read-api:8080
+      - PRODUCT_WRITE_API_URL=http://product-write-api:8080
+    image: golang
+    networks:
+      - cloud
+    volumes:
+      - ..:/cloud
+    working_dir: /cloud/test/system
+
+networks:
+  cloud:
+    external: true
+    name: cloud_default

@@ -43,8 +43,8 @@ func NewClient() ProductWriteAPIClient {
 
 func (c *client) CreateProduct(name string, description string) (*entity.Product, error) {
 	requestBodyBytes, err := json.Marshal(&createProductRequestBody{
-		Description: name,
-		Name:        description,
+		Description: description,
+		Name:        name,
 	})
 	if err != nil {
 		return nil, err
