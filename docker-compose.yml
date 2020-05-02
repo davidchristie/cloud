@@ -1,0 +1,110 @@
+version: "2.3"
+services:
+  build-cloud-image:
+    build:
+      context: .
+      dockerfile: build/cloud/Dockerfile
+    image: cloud
+
+  gateway:
+    build:
+      args:
+        service: gateway
+      context: build/service
+    depends_on:
+      - build-cloud-image
+      - product-read-api
+      - product-write-api
+    environment:
+      - PRODUCT_READ_API_URL=http://product-read-api:8080
+      - PRODUCT_WRITE_API_URL=http://product-write-api:8080
+    image: gateway
+    ports:
+      - 8080:8080
+
+  kafka:
+    depends_on:
+      - zookeeper
+    environment:
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_METADATA_MAX_AGE_MS=500
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+    image: "bitnami/kafka:2"
+    volumes:
+      - "kafka-data:/bitnami"
+
+  load-generator:
+    build:
+      args:
+        service: load-generator
+      context: build/service
+    depends_on:
+      - build-cloud-image
+      - product-write-api
+    environment:
+      - PRODUCT_READ_API_URL=http://product-read-api:8080
+      - PRODUCT_WRITE_API_URL=http://product-write-api:8080
+    image: load-generator
+
+  product-database:
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    image: mongo:4.0
+
+  product-read-api:
+    build:
+      args:
+        service: product-read-api
+      context: build/service
+    depends_on:
+      - build-cloud-image
+      - product-database
+    env_file:
+      - configs/product-database.env
+    image: product-read-api
+
+  product-worker:
+    build:
+      args:
+        service: product-worker
+      context: build/service
+    depends_on:
+      - build-cloud-image
+      - kafka
+      - product-database
+    env_file:
+      - configs/kafka.env
+      - configs/product-database.env
+    environment:
+      - KAFKA_GROUP_ID=mongo-group
+    image: product-worker
+    restart: on-failure
+
+  product-write-api:
+    build:
+      args:
+        service: product-write-api
+      context: build/service
+    depends_on:
+      - build-cloud-image
+      - kafka
+    env_file:
+      - configs/kafka.env
+    image: product-write-api
+
+  zookeeper:
+    image: "bitnami/zookeeper:3"
+    ports:
+      - "2181:2181"
+    volumes:
+      - "zookeeper-data:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+volumes:
+  kafka-data:
+    driver: local
+
+  zookeeper-data:
+    driver: local
