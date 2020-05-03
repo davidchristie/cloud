@@ -30,7 +30,7 @@ func (suite *ProductSuite) TestCreateProduct() {
 	name := fake.ProductName() + "+" + uuid.New().String()
 	description := fake.Sentences() + "+" + uuid.New().String()
 
-	createdProduct, err := suite.ProductWriteAPI.CreateProduct(name, description)
+	createdProduct, err := suite.ProductWriteAPI.CreateProduct(name, description, uuid.New())
 
 	suite.Assert().Nil(err)
 	suite.Assert().NotNil(createdProduct)

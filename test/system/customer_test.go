@@ -30,7 +30,7 @@ func (suite *CustomerSuite) TestCreateCustomer() {
 	firstName := fake.FirstName() + "+" + uuid.New().String()
 	lastName := fake.LastName() + "+" + uuid.New().String()
 
-	createdCustomer, err := suite.CustomerWriteAPI.CreateCustomer(firstName, lastName)
+	createdCustomer, err := suite.CustomerWriteAPI.CreateCustomer(firstName, lastName, uuid.New())
 
 	suite.Assert().Nil(err)
 	suite.Assert().NotNil(createdCustomer)

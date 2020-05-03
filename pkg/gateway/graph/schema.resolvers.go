@@ -6,14 +6,32 @@ package graph
 import (
 	"context"
 
+	customerReadAPIClient "github.com/davidchristie/cloud/pkg/customer-read-api/client"
+	customerWriteAPIClient "github.com/davidchristie/cloud/pkg/customer-write-api/client"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/generated"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/model"
 	productReadAPIClient "github.com/davidchristie/cloud/pkg/product-read-api/client"
 	productWriteAPIClient "github.com/davidchristie/cloud/pkg/product-write-api/client"
+	"github.com/google/uuid"
 )
 
+func (r *mutationResolver) CreateCustomer(ctx context.Context, input model.CreateCustomerInput) (*model.Customer, error) {
+	correlationID := uuid.New()
+	customer, err := customerWriteAPIClient.NewClient().CreateCustomer(input.FirstName, input.LastName, correlationID)
+	if err != nil {
+		return nil, err
+	}
+	modelCustomer := model.Customer{
+		FirstName: customer.FirstName,
+		ID:        customer.ID.String(),
+		LastName:  customer.LastName,
+	}
+	return &modelCustomer, nil
+}
+
 func (r *mutationResolver) CreateProduct(ctx context.Context, input model.CreateProductInput) (*model.Product, error) {
-	product, err := productWriteAPIClient.NewClient().CreateProduct(input.Name, input.Description)
+	correlationID := uuid.New()
+	product, err := productWriteAPIClient.NewClient().CreateProduct(input.Name, input.Description, correlationID)
 	if err != nil {
 		return nil, err
 	}
@@ -23,6 +41,22 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input model.Create
 		Name:        product.Name,
 	}
 	return &modelProduct, nil
+}
+
+func (r *queryResolver) Customers(ctx context.Context) ([]*model.Customer, error) {
+	customers, err := customerReadAPIClient.NewClient().Customers()
+	if err != nil {
+		return nil, err
+	}
+	modelCustomers := make([]*model.Customer, len(customers))
+	for i, customer := range customers {
+		modelCustomers[i] = &model.Customer{
+			FirstName: customer.FirstName,
+			ID:        customer.ID.String(),
+			LastName:  customer.LastName,
+		}
+	}
+	return modelCustomers, nil
 }
 
 func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) {

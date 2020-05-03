@@ -7,8 +7,8 @@ import (
 	"log"
 
 	customerDatabase "github.com/davidchristie/cloud/pkg/customer-database"
-	"github.com/davidchristie/cloud/pkg/entity"
 	"github.com/davidchristie/cloud/pkg/kafka"
+	"github.com/davidchristie/cloud/pkg/message"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -38,21 +38,17 @@ func Start() {
 
 		fmt.Printf("message value: %v\n", string(msg.Value))
 
-		customer := decodeCustomer(msg.Value)
-		fmt.Printf("customer created: %+v\n", customer)
+		event := message.CustomerCreatedEvent{}
+		err = json.Unmarshal(msg.Value, &event)
+		if err != nil {
+			fmt.Println("error consuming message, ignoring: ", err)
+		}
 
-		customerRepository.CreateCustomer(context.Background(), customer)
+		fmt.Printf("customer created: %+v\n", event.Data)
+
+		customerRepository.CreateCustomer(context.Background(), event.Data)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
-}
-
-func decodeCustomer(data []byte) *entity.Customer {
-	customer := entity.Customer{}
-	err := json.Unmarshal(data, &customer)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return &customer
 }

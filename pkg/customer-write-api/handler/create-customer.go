@@ -8,11 +8,13 @@ import (
 
 	"github.com/davidchristie/cloud/pkg/customer-write-api/core"
 	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/google/uuid"
 )
 
 type createCustomerRequestBody struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+	CorrelationID uuid.UUID `json:"correlation_id"`
+	FirstName     string    `json:"first_name"`
+	LastName      string    `json:"last_name"`
 }
 
 type createCustomerResponseBody struct {
@@ -29,9 +31,10 @@ func CreateCustomerHandler(c core.Core) func(http.ResponseWriter, *http.Request)
 			err = json.Unmarshal(requestBodyBytes, &requestBody)
 			if err == nil {
 				output, err := c.CreateCustomer(&core.CreateCustomerInput{
-					Context:   req.Context(),
-					FirstName: requestBody.FirstName,
-					LastName:  requestBody.LastName,
+					Context:       req.Context(),
+					CorrelationID: requestBody.CorrelationID,
+					FirstName:     requestBody.FirstName,
+					LastName:      requestBody.LastName,
 				})
 				if err == nil {
 					responseBody := createCustomerResponseBody{

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/davidchristie/cloud/pkg/entity"
 	"github.com/davidchristie/cloud/pkg/kafka"
+	"github.com/davidchristie/cloud/pkg/message"
 	productDatabase "github.com/davidchristie/cloud/pkg/product-database"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -38,21 +38,17 @@ func Start() {
 
 		fmt.Printf("message value: %v\n", string(msg.Value))
 
-		product := decodeProduct(msg.Value)
-		fmt.Printf("product created: %+v\n", product)
+		event := message.ProductCreatedEvent{}
+		err = json.Unmarshal(msg.Value, &event)
+		if err != nil {
+			fmt.Println("error consuming message, ignoring: ", err)
+		}
 
-		productRepository.CreateProduct(context.Background(), product)
+		fmt.Printf("product created: %+v\n", event.Data)
+
+		productRepository.CreateProduct(context.Background(), event.Data)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
-}
-
-func decodeProduct(data []byte) *entity.Product {
-	product := entity.Product{}
-	err := json.Unmarshal(data, &product)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return &product
 }

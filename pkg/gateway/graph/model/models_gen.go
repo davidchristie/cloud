@@ -2,9 +2,20 @@
 
 package model
 
+type CreateCustomerInput struct {
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+}
+
 type CreateProductInput struct {
 	Description string `json:"description"`
 	Name        string `json:"name"`
+}
+
+type Customer struct {
+	FirstName string `json:"firstName"`
+	ID        string `json:"id"`
+	LastName  string `json:"lastName"`
 }
 
 type Product struct {

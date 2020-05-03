@@ -6,14 +6,16 @@ import (
 	"fmt"
 
 	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/message"
 	"github.com/google/uuid"
 	"github.com/segmentio/kafka-go"
 )
 
 type CreateProductInput struct {
-	Context     context.Context
-	Description string
-	Name        string
+	Context        context.Context
+	CorreleationID uuid.UUID
+	Description    string
+	Name           string
 }
 
 type CreateProductOutput struct {
@@ -27,7 +29,13 @@ func (c *core) CreateProduct(input *CreateProductInput) (*CreateProductOutput, e
 		Name:        input.Name,
 	}
 	fmt.Printf("product created: %+v\n", product)
-	value, err := json.Marshal(product)
+	event := message.ProductCreatedEvent{
+		Data: &product,
+		Metadata: &message.EventMetadata{
+			CorrelationID: input.CorreleationID,
+		},
+	}
+	value, err := json.Marshal(event)
 	if err != nil {
 		return nil, err
 	}

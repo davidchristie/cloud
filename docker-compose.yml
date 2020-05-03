@@ -61,9 +61,13 @@ services:
       context: build/service
     depends_on:
       - build-cloud-image
+      - customer-read-api
+      - customer-write-api
       - product-read-api
       - product-write-api
     environment:
+      - CUSTOMER_READ_API_URL=http://customer-read-api:8080
+      - CUSTOMER_WRITE_API_URL=http://customer-write-api:8080
       - PRODUCT_READ_API_URL=http://product-read-api:8080
       - PRODUCT_WRITE_API_URL=http://product-write-api:8080
     image: gateway
@@ -88,11 +92,10 @@ services:
       context: build/service
     depends_on:
       - build-cloud-image
+      - customer-write-api
       - product-write-api
     environment:
-      - CUSTOMER_READ_API_URL=http://customer-read-api:8080
       - CUSTOMER_WRITE_API_URL=http://customer-write-api:8080
-      - PRODUCT_READ_API_URL=http://product-read-api:8080
       - PRODUCT_WRITE_API_URL=http://product-write-api:8080
     image: load-generator
 

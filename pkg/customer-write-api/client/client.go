@@ -8,11 +8,12 @@ import (
 	"net/http"
 
 	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 )
 
 type CustomerWriteAPIClient interface {
-	CreateCustomer(firstName string, lastName string) (*entity.Customer, error)
+	CreateCustomer(firstName, lastName string, correlationID uuid.UUID) (*entity.Customer, error)
 }
 
 type client struct {
@@ -25,8 +26,9 @@ type createCustomerResponseBody struct {
 }
 
 type createCustomerRequestBody struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+	CorrelationID uuid.UUID `json:"correlation_id"`
+	FirstName     string    `json:"first_name"`
+	LastName      string    `json:"last_name"`
 }
 
 type specification struct {
@@ -41,10 +43,11 @@ func NewClient() CustomerWriteAPIClient {
 	}
 }
 
-func (c *client) CreateCustomer(firstName string, lastName string) (*entity.Customer, error) {
+func (c *client) CreateCustomer(firstName, lastName string, correlationID uuid.UUID) (*entity.Customer, error) {
 	requestBodyBytes, err := json.Marshal(&createCustomerRequestBody{
-		FirstName: firstName,
-		LastName:  lastName,
+		CorrelationID: correlationID,
+		FirstName:     firstName,
+		LastName:      lastName,
 	})
 	if err != nil {
 		return nil, err

@@ -8,11 +8,13 @@ import (
 
 	"github.com/davidchristie/cloud/pkg/entity"
 	"github.com/davidchristie/cloud/pkg/product-write-api/core"
+	"github.com/google/uuid"
 )
 
 type createProductRequestBody struct {
-	Description string `json:"description"`
-	Name        string `json:"name"`
+	CorrelationID uuid.UUID `json:"correlation_id"`
+	Description   string    `json:"description"`
+	Name          string    `json:"name"`
 }
 
 type createProductResponseBody struct {
@@ -29,9 +31,10 @@ func CreateProductHandler(c core.Core) func(http.ResponseWriter, *http.Request) 
 			err = json.Unmarshal(requestBodyBytes, &requestBody)
 			if err == nil {
 				output, err := c.CreateProduct(&core.CreateProductInput{
-					Context:     req.Context(),
-					Description: requestBody.Description,
-					Name:        requestBody.Name,
+					Context:        req.Context(),
+					CorreleationID: requestBody.CorrelationID,
+					Description:    requestBody.Description,
+					Name:           requestBody.Name,
 				})
 				if err == nil {
 					responseBody := createProductResponseBody{

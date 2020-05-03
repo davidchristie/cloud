@@ -6,14 +6,16 @@ import (
 	"fmt"
 
 	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/message"
 	"github.com/google/uuid"
 	"github.com/segmentio/kafka-go"
 )
 
 type CreateCustomerInput struct {
-	Context   context.Context
-	FirstName string
-	LastName  string
+	Context       context.Context
+	CorrelationID uuid.UUID
+	FirstName     string
+	LastName      string
 }
 
 type CreateCustomerOutput struct {
@@ -27,7 +29,13 @@ func (c *core) CreateCustomer(input *CreateCustomerInput) (*CreateCustomerOutput
 		LastName:  input.LastName,
 	}
 	fmt.Printf("customer created: %+v\n", customer)
-	value, err := json.Marshal(customer)
+	event := message.CustomerCreatedEvent{
+		Data: &customer,
+		Metadata: &message.EventMetadata{
+			CorrelationID: input.CorrelationID,
+		},
+	}
+	value, err := json.Marshal(event)
 	if err != nil {
 		return nil, err
 	}

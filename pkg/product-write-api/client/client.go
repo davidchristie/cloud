@@ -8,11 +8,12 @@ import (
 	"net/http"
 
 	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 )
 
 type ProductWriteAPIClient interface {
-	CreateProduct(name string, description string) (*entity.Product, error)
+	CreateProduct(name, description string, correlationID uuid.UUID) (*entity.Product, error)
 }
 
 type client struct {
@@ -25,8 +26,9 @@ type createProductResponseBody struct {
 }
 
 type createProductRequestBody struct {
-	Description string `json:"description"`
-	Name        string `json:"name"`
+	CorrelationID uuid.UUID `json:"correlation_id"`
+	Description   string    `json:"description"`
+	Name          string    `json:"name"`
 }
 
 type specification struct {
@@ -41,10 +43,11 @@ func NewClient() ProductWriteAPIClient {
 	}
 }
 
-func (c *client) CreateProduct(name string, description string) (*entity.Product, error) {
+func (c *client) CreateProduct(name, description string, correlationID uuid.UUID) (*entity.Product, error) {
 	requestBodyBytes, err := json.Marshal(&createProductRequestBody{
-		Description: description,
-		Name:        name,
+		CorrelationID: correlationID,
+		Description:   description,
+		Name:          name,
 	})
 	if err != nil {
 		return nil, err

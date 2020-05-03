@@ -1,6 +1,17 @@
+input CreateCustomerInput {
+  firstName: String!
+  lastName: String!
+}
+
 input CreateProductInput {
   description: String!
   name: String!
+}
+
+type Customer {
+  firstName: String!
+  id: String!
+  lastName: String!
 }
 
 type Product {
@@ -10,9 +21,11 @@ type Product {
 }
 
 type Query {
+  customers: [Customer!]!
   products: [Product!]!
 }
 
 type Mutation {
+  createCustomer(input: CreateCustomerInput!): Customer!
   createProduct(input: CreateProductInput!): Product!
 }
