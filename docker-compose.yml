@@ -7,6 +7,53 @@ services:
       dockerfile: build/cloud/Dockerfile
     image: cloud
 
+  customer-database:
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    image: mongo:4.0
+
+  customer-read-api:
+    build:
+      args:
+        service: customer-read-api
+      context: build/service
+    depends_on:
+      - build-cloud-image
+      - customer-database
+    env_file:
+      - configs/customer-database.env
+    image: customer-read-api
+
+  customer-worker:
+    build:
+      args:
+        service: customer-worker
+      context: build/service
+    depends_on:
+      - build-cloud-image
+      - kafka
+      - customer-database
+    env_file:
+      - configs/kafka.env
+      - configs/customer-database.env
+    environment:
+      - KAFKA_GROUP_ID=mongo-group
+    image: customer-worker
+    restart: on-failure
+
+  customer-write-api:
+    build:
+      args:
+        service: customer-write-api
+      context: build/service
+    depends_on:
+      - build-cloud-image
+      - kafka
+    env_file:
+      - configs/kafka.env
+    image: customer-write-api
+
   gateway:
     build:
       args:
@@ -43,6 +90,8 @@ services:
       - build-cloud-image
       - product-write-api
     environment:
+      - CUSTOMER_READ_API_URL=http://customer-read-api:8080
+      - CUSTOMER_WRITE_API_URL=http://customer-write-api:8080
       - PRODUCT_READ_API_URL=http://product-read-api:8080
       - PRODUCT_WRITE_API_URL=http://product-write-api:8080
     image: load-generator
