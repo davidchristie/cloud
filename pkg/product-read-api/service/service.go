@@ -10,10 +10,9 @@ import (
 )
 
 func Start() {
-
 	db := productDatabase.Connect()
 
-	productRepository := productDatabase.NewProductRespository(db)
+	productRepository := productDatabase.NewProductRepository(db)
 
 	http.HandleFunc("/products", handler.ProductsHandler(productRepository))
 

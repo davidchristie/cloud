@@ -14,7 +14,7 @@ import (
 
 type ProductRepository interface {
 	CreateProduct(context.Context, *entity.Product) error
-	GetProducts(context.Context) (*[]entity.Product, error)
+	GetProducts(context.Context) ([]*entity.Product, error)
 }
 
 type productRepository struct {
@@ -25,7 +25,7 @@ type productSpecification struct {
 	ProductCollectionName string `required:"true" split_words:"true"`
 }
 
-func NewProductRespository(database *mongo.Database) ProductRepository {
+func NewProductRepository(database *mongo.Database) ProductRepository {
 	spec := productSpecification{}
 
 	envconfig.MustProcess("", &spec)
@@ -50,7 +50,7 @@ func (p *productRepository) CreateProduct(ctx context.Context, product *entity.P
 	return nil
 }
 
-func (p *productRepository) GetProducts(ctx context.Context) (*[]entity.Product, error) {
+func (p *productRepository) GetProducts(ctx context.Context) ([]*entity.Product, error) {
 	cursor, err := p.collection.Find(ctx, bson.M{})
 	defer cursor.Close(ctx)
 	if err != nil {
@@ -68,16 +68,16 @@ func (p *productRepository) GetProducts(ctx context.Context) (*[]entity.Product,
 	return products, nil
 }
 
-func convertDocumentsToProducts(documents *[]bson.Raw) (*[]entity.Product, error) {
-	products := make([]entity.Product, len(*documents))
+func convertDocumentsToProducts(documents *[]bson.Raw) ([]*entity.Product, error) {
+	products := make([]*entity.Product, len(*documents))
 	for i, document := range *documents {
 		product, err := decodeProduct(&document)
 		if err != nil {
 			return nil, err
 		}
-		products[i] = *product
+		products[i] = product
 	}
-	return &products, nil
+	return products, nil
 }
 
 func decodeProduct(document *bson.Raw) (*entity.Product, error) {

@@ -1,6 +1,17 @@
 version: "3.7"
 
 services:
+  integration:
+    command: go test -count 1 -v ./...
+    env_file:
+      - ../configs/product-database.env
+    image: golang
+    networks:
+      - cloud
+    volumes:
+      - ..:/cloud
+    working_dir: /cloud/test/integration
+
   system:
     command: go test -count 1 -v ./...
     environment:

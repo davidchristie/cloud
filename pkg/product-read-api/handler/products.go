@@ -9,7 +9,7 @@ import (
 )
 
 type productsResponseBody struct {
-	Data *[]entity.Product `json:"data"`
+	Data []*entity.Product `json:"data"`
 }
 
 func ProductsHandler(productRespository productDatabase.ProductRepository) func(http.ResponseWriter, *http.Request) {

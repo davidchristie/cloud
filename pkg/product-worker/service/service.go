@@ -20,7 +20,7 @@ func Start() {
 	spec := specificiation{}
 	envconfig.MustProcess("", &spec)
 
-	productRepository := productDatabase.NewProductRespository(productDatabase.Connect())
+	productRepository := productDatabase.NewProductRepository(productDatabase.Connect())
 
 	topic := spec.KafkaProductCreatedTopic
 
