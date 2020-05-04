@@ -99,6 +99,12 @@ services:
       - PRODUCT_WRITE_API_URL=http://product-write-api:8080
     image: load-generator
 
+  order-database:
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    image: mongo:4.0
+
   product-database:
     environment:
       - MONGO_DATA_DIR=/data/db

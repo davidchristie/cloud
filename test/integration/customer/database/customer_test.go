@@ -3,7 +3,6 @@ package database_test
 import (
 	"context"
 	"testing"
-	"time"
 
 	customerDatabase "github.com/davidchristie/cloud/pkg/customer-database"
 	"github.com/davidchristie/cloud/pkg/entity"
@@ -27,27 +26,26 @@ func (suite *DatabaseSuite) SetupTest() {
 }
 
 func (suite *DatabaseSuite) TestCreateCustomer() {
-	createdCustomer := entity.Customer{
+	createdCustomer := &entity.Customer{
 		FirstName: fake.FirstName() + "+" + uuid.New().String(),
 		ID:        uuid.New(),
 		LastName:  fake.LastName() + "+" + uuid.New().String(),
 	}
 
-	err := suite.CustomerRepository.CreateCustomer(context.Background(), &createdCustomer)
+	err := suite.CustomerRepository.CreateCustomer(context.Background(), createdCustomer)
 
 	suite.Assert().Nil(err)
 
-	suite.T().Log("wait for created customer to appear in customer list")
-Retries:
-	for {
-		customers, err := suite.CustomerRepository.GetCustomers(context.Background())
-		suite.Assert().Nil(err)
-		for _, customer := range customers {
-			if customer.ID == createdCustomer.ID {
-				break Retries
-			}
+	customers, err := suite.CustomerRepository.GetCustomers(context.Background())
+	suite.Assert().Nil(err)
+	includesCreatedCustomer := false
+	for _, customer := range customers {
+		if customer.ID == createdCustomer.ID {
+			suite.Assert().Equal(createdCustomer, customer)
+			includesCreatedCustomer = true
+			break
 		}
-		suite.T().Log("...")
-		time.Sleep(1 * time.Second)
 	}
+
+	suite.Assert().True(includesCreatedCustomer)
 }

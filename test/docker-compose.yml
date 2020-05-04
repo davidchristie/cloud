@@ -5,6 +5,7 @@ services:
     command: go test -count 1 -v ./...
     env_file:
       - ../configs/customer-database.env
+      - ../configs/order-database.env
       - ../configs/product-database.env
     image: golang
     networks:
