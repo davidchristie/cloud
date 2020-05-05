@@ -12,7 +12,8 @@ type LineItem struct {
 }
 
 type Order struct {
-	CreatedAt time.Time   `json:"created_at"`
-	ID        uuid.UUID   `json:"id"`
-	LineItems []*LineItem `json:"line_items"`
+	CreatedAt  time.Time   `json:"created_at"`
+	CustomerID uuid.UUID   `json:"customer_id"`
+	ID         uuid.UUID   `json:"id"`
+	LineItems  []*LineItem `json:"line_items"`
 }

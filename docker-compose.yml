@@ -63,11 +63,15 @@ services:
       - build-cloud-image
       - customer-read-api
       - customer-write-api
+      - order-read-api
+      - order-write-api
       - product-read-api
       - product-write-api
     environment:
       - CUSTOMER_READ_API_URL=http://customer-read-api:8080
       - CUSTOMER_WRITE_API_URL=http://customer-write-api:8080
+      - ORDER_READ_API_URL=http://order-read-api:8080
+      - ORDER_WRITE_API_URL=http://order-write-api:8080
       - PRODUCT_READ_API_URL=http://product-read-api:8080
       - PRODUCT_WRITE_API_URL=http://product-write-api:8080
     image: gateway
@@ -96,6 +100,7 @@ services:
       - product-write-api
     environment:
       - CUSTOMER_WRITE_API_URL=http://customer-write-api:8080
+      - ORDER_WRITE_API_URL=http://order-write-api:8080
       - PRODUCT_WRITE_API_URL=http://product-write-api:8080
     image: load-generator
 
@@ -104,6 +109,47 @@ services:
       - MONGO_DATA_DIR=/data/db
       - MONGO_LOG_DIR=/dev/null
     image: mongo:4.0
+
+  order-read-api:
+    build:
+      args:
+        service: order-read-api
+      context: build/service
+    depends_on:
+      - build-cloud-image
+      - order-database
+    env_file:
+      - configs/order-database.env
+    image: order-read-api
+
+  order-worker:
+    build:
+      args:
+        service: order-worker
+      context: build/service
+    depends_on:
+      - build-cloud-image
+      - kafka
+      - order-database
+    env_file:
+      - configs/kafka.env
+      - configs/order-database.env
+    environment:
+      - KAFKA_GROUP_ID=mongo-group
+    image: order-worker
+    restart: on-failure
+
+  order-write-api:
+    build:
+      args:
+        service: order-write-api
+      context: build/service
+    depends_on:
+      - build-cloud-image
+      - kafka
+    env_file:
+      - configs/kafka.env
+    image: order-write-api
 
   product-database:
     environment:

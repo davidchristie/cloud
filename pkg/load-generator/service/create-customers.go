@@ -4,17 +4,19 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/davidchristie/cloud/pkg/customer-write-api/client"
+	"github.com/davidchristie/cloud/pkg/entity"
 	"github.com/google/uuid"
 	"github.com/icrowley/fake"
 )
 
-func CreateCustomers() {
-	customerWriteAPI := client.NewClient()
+func (s *service) CreateFakeCustomer() (*entity.Customer, error) {
+	fmt.Println("create fake customer")
+	return s.CustomerWriteAPI.CreateCustomer(fake.FirstName(), fake.LastName(), uuid.New())
+}
 
+func (s *service) GenerateFakeCustomers() {
 	for i := 0; ; i++ {
-		fmt.Println("create customer")
-		_, err := customerWriteAPI.CreateCustomer(fake.FirstName(), fake.LastName(), uuid.New())
+		_, err := s.CreateFakeCustomer()
 		if err != nil {
 			fmt.Println(err)
 		}

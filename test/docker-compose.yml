@@ -19,6 +19,8 @@ services:
     environment:
       - CUSTOMER_READ_API_URL=http://customer-read-api:8080
       - CUSTOMER_WRITE_API_URL=http://customer-write-api:8080
+      - ORDER_READ_API_URL=http://order-read-api:8080
+      - ORDER_WRITE_API_URL=http://order-write-api:8080
       - PRODUCT_READ_API_URL=http://product-read-api:8080
       - PRODUCT_WRITE_API_URL=http://product-write-api:8080
     image: golang

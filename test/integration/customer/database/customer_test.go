@@ -37,15 +37,7 @@ func (suite *DatabaseSuite) TestCreateCustomer() {
 	suite.Assert().Nil(err)
 
 	customers, err := suite.CustomerRepository.GetCustomers(context.Background())
-	suite.Assert().Nil(err)
-	includesCreatedCustomer := false
-	for _, customer := range customers {
-		if customer.ID == createdCustomer.ID {
-			suite.Assert().Equal(createdCustomer, customer)
-			includesCreatedCustomer = true
-			break
-		}
-	}
 
-	suite.Assert().True(includesCreatedCustomer)
+	suite.Assert().Nil(err)
+	suite.Assert().Contains(customers, createdCustomer)
 }

@@ -3,15 +3,37 @@ input CreateCustomerInput {
   lastName: String!
 }
 
+input CreateOrderInput {
+  customerID: String!
+  lineItems: [LineItemInput!]!
+}
+
 input CreateProductInput {
   description: String!
   name: String!
+}
+
+input LineItemInput {
+  productID: String!
+  quantity: Int!
 }
 
 type Customer {
   firstName: String!
   id: String!
   lastName: String!
+}
+
+type LineItem {
+  product: Product!
+  quantity: Int!
+}
+
+type Order {
+  customer: Customer!
+  createdAt: String!
+  id: ID!
+  lineItems: [LineItem!]!
 }
 
 type Product {
@@ -22,10 +44,12 @@ type Product {
 
 type Query {
   customers: [Customer!]!
+  orders: [Order!]!
   products: [Product!]!
 }
 
 type Mutation {
   createCustomer(input: CreateCustomerInput!): Customer!
+  createOrder(input: CreateOrderInput!): Order!
   createProduct(input: CreateProductInput!): Product!
 }

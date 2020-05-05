@@ -8,10 +8,12 @@ import (
 	"net/http"
 
 	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 )
 
 type ProductReadAPIClient interface {
+	Product(uuid.UUID) (*entity.Product, error)
 	Products() ([]*entity.Product, error)
 }
 
@@ -28,12 +30,28 @@ type specification struct {
 	URL string `required:"true"`
 }
 
+var ErrProductNotFound = errors.New("product not found")
+
 func NewClient() ProductReadAPIClient {
 	spec := specification{}
 	envconfig.MustProcess("PRODUCT_READ_API", &spec)
 	return &client{
 		url: spec.URL,
 	}
+}
+
+// TODO: Implement this properly.
+func (c *client) Product(id uuid.UUID) (*entity.Product, error) {
+	customers, err := c.Products()
+	if err != nil {
+		return nil, err
+	}
+	for _, customer := range customers {
+		if id == customer.ID {
+			return customer, nil
+		}
+	}
+	return nil, ErrProductNotFound
 }
 
 func (c *client) Products() ([]*entity.Product, error) {

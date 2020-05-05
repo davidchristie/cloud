@@ -7,6 +7,11 @@ type CreateCustomerInput struct {
 	LastName  string `json:"lastName"`
 }
 
+type CreateOrderInput struct {
+	CustomerID string           `json:"customerID"`
+	LineItems  []*LineItemInput `json:"lineItems"`
+}
+
 type CreateProductInput struct {
 	Description string `json:"description"`
 	Name        string `json:"name"`
@@ -16,6 +21,23 @@ type Customer struct {
 	FirstName string `json:"firstName"`
 	ID        string `json:"id"`
 	LastName  string `json:"lastName"`
+}
+
+type LineItem struct {
+	Product  *Product `json:"product"`
+	Quantity int      `json:"quantity"`
+}
+
+type LineItemInput struct {
+	ProductID string `json:"productID"`
+	Quantity  int    `json:"quantity"`
+}
+
+type Order struct {
+	Customer  *Customer   `json:"customer"`
+	CreatedAt string      `json:"createdAt"`
+	ID        string      `json:"id"`
+	LineItems []*LineItem `json:"lineItems"`
 }
 
 type Product struct {
