@@ -1,7 +1,11 @@
 package main
 
-import "github.com/davidchristie/cloud/pkg/product-write-api/service"
+import (
+	"log"
+
+	"github.com/davidchristie/cloud/pkg/product/write/api"
+)
 
 func main() {
-	service.Start()
+	log.Fatal(api.StartService())
 }

@@ -1,18 +1,18 @@
-package client
+package api
 
 import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/product/read/api/handler"
 	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 )
 
-type ProductReadAPIClient interface {
+type Client interface {
 	Product(uuid.UUID) (*entity.Product, error)
 	Products() ([]*entity.Product, error)
 }
@@ -21,19 +21,14 @@ type client struct {
 	url string
 }
 
-type productsResponseBody struct {
-	Data    *[]*entity.Product `json:"data"`
-	Message string             `json:"message"`
-}
-
-type specification struct {
+type clientSpecification struct {
 	URL string `required:"true"`
 }
 
 var ErrProductNotFound = errors.New("product not found")
 
-func NewClient() ProductReadAPIClient {
-	spec := specification{}
+func NewClient() Client {
+	spec := clientSpecification{}
 	envconfig.MustProcess("PRODUCT_READ_API", &spec)
 	return &client{
 		url: spec.URL,
@@ -70,18 +65,18 @@ func (c *client) Products() ([]*entity.Product, error) {
 	if response.StatusCode != 200 {
 		return nil, errors.New(body.Message)
 	}
-	return *body.Data, nil
+	return body.Data, nil
 }
 
-func unmarshalProductsResponseBody(response *http.Response) (*productsResponseBody, error) {
+func unmarshalProductsResponseBody(response *http.Response) (*handler.ProductsResponseBody, error) {
 	data, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
-	body := productsResponseBody{}
+	body := &handler.ProductsResponseBody{}
 	err = json.Unmarshal(data, &body)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return &body, nil
+	return body, nil
 }

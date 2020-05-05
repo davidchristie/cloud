@@ -1,7 +1,7 @@
 package system_test
 
 import (
-	productReadAPIClient "github.com/davidchristie/cloud/pkg/product-read-api/client"
+	productReadAPIClient "github.com/davidchristie/cloud/pkg/product/read/api"
 	"github.com/google/uuid"
 	"github.com/icrowley/fake"
 )

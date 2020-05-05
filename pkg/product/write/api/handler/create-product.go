@@ -7,19 +7,19 @@ import (
 	"net/http"
 
 	"github.com/davidchristie/cloud/pkg/entity"
-	"github.com/davidchristie/cloud/pkg/product-write-api/core"
+	"github.com/davidchristie/cloud/pkg/product/write/api/core"
 	"github.com/google/uuid"
 )
 
-type createProductRequestBody struct {
+type CreateProductRequestBody struct {
 	CorrelationID uuid.UUID `json:"correlation_id"`
 	Description   string    `json:"description"`
 	Name          string    `json:"name"`
 }
 
-type createProductResponseBody struct {
-	Data    *entity.Product `json:"data"`
-	Message string          `json:"message"`
+type CreateProductResponseBody struct {
+	Data    *entity.Product `json:"data,omitempty"`
+	Message string          `json:"message,omitempty"`
 }
 
 func CreateProductHandler(c core.Core) func(http.ResponseWriter, *http.Request) {
@@ -27,7 +27,7 @@ func CreateProductHandler(c core.Core) func(http.ResponseWriter, *http.Request) 
 		wrt.Header().Add("Content-Type", "application/json")
 		requestBodyBytes, err := ioutil.ReadAll(req.Body)
 		if err == nil {
-			requestBody := createProductRequestBody{}
+			requestBody := CreateProductRequestBody{}
 			err = json.Unmarshal(requestBodyBytes, &requestBody)
 			if err == nil {
 				output, err := c.CreateProduct(&core.CreateProductInput{
@@ -37,7 +37,7 @@ func CreateProductHandler(c core.Core) func(http.ResponseWriter, *http.Request) 
 					Name:           requestBody.Name,
 				})
 				if err == nil {
-					responseBody := createProductResponseBody{
+					responseBody := CreateProductResponseBody{
 						Data: output.CreatedProduct,
 					}
 					responseBodyBytes, _ := json.Marshal(responseBody)
@@ -47,7 +47,7 @@ func CreateProductHandler(c core.Core) func(http.ResponseWriter, *http.Request) 
 			}
 		}
 		fmt.Println(err)
-		responseBody := createProductResponseBody{
+		responseBody := CreateProductResponseBody{
 			Message: err.Error(),
 		}
 		responseBodyBytes, _ := json.Marshal(responseBody)

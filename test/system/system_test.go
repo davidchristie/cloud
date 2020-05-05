@@ -12,8 +12,8 @@ import (
 	orderReadAPI "github.com/davidchristie/cloud/pkg/order/read/api"
 	"github.com/davidchristie/cloud/pkg/order/write/api"
 	orderWriteAPI "github.com/davidchristie/cloud/pkg/order/write/api"
-	productReadAPIClient "github.com/davidchristie/cloud/pkg/product-read-api/client"
-	productWriteAPIClient "github.com/davidchristie/cloud/pkg/product-write-api/client"
+	productReadAPI "github.com/davidchristie/cloud/pkg/product/read/api"
+	productWriteAPI "github.com/davidchristie/cloud/pkg/product/write/api"
 	"github.com/google/uuid"
 	"github.com/icrowley/fake"
 	"github.com/stretchr/testify/suite"
@@ -25,8 +25,8 @@ type SystemSuite struct {
 	CustomerWriteAPI customerWriteAPIClient.CustomerWriteAPIClient
 	OrderReadAPI     orderReadAPI.OrderReadAPIClient
 	OrderWriteAPI    orderWriteAPI.OrderWriteAPIClient
-	ProductReadAPI   productReadAPIClient.ProductReadAPIClient
-	ProductWriteAPI  productWriteAPIClient.ProductWriteAPIClient
+	ProductReadAPI   productReadAPI.Client
+	ProductWriteAPI  productWriteAPI.Client
 }
 
 func (suite *SystemSuite) SetupTest() {
@@ -34,8 +34,8 @@ func (suite *SystemSuite) SetupTest() {
 	suite.CustomerWriteAPI = customerWriteAPIClient.NewClient()
 	suite.OrderReadAPI = orderReadAPI.NewClient()
 	suite.OrderWriteAPI = orderWriteAPI.NewClient()
-	suite.ProductReadAPI = productReadAPIClient.NewClient()
-	suite.ProductWriteAPI = productWriteAPIClient.NewClient()
+	suite.ProductReadAPI = productReadAPI.NewClient()
+	suite.ProductWriteAPI = productWriteAPI.NewClient()
 }
 
 func (suite *SystemSuite) CreateCustomer() (*entity.Customer, error) {

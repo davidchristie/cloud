@@ -9,8 +9,8 @@ import (
 	customerWriteAPI "github.com/davidchristie/cloud/pkg/customer-write-api/client"
 	orderReadAPI "github.com/davidchristie/cloud/pkg/order/read/api"
 	orderWriteAPI "github.com/davidchristie/cloud/pkg/order/write/api"
-	productReadAPI "github.com/davidchristie/cloud/pkg/product-read-api/client"
-	productWriteAPI "github.com/davidchristie/cloud/pkg/product-write-api/client"
+	productReadAPI "github.com/davidchristie/cloud/pkg/product/read/api"
+	productWriteAPI "github.com/davidchristie/cloud/pkg/product/write/api"
 )
 
 type Resolver struct {
@@ -18,8 +18,8 @@ type Resolver struct {
 	CustomerWriteAPI customerWriteAPI.CustomerWriteAPIClient
 	OrderReadAPI     orderReadAPI.OrderReadAPIClient
 	OrderWriteAPI    orderWriteAPI.OrderWriteAPIClient
-	ProductReadAPI   productReadAPI.ProductReadAPIClient
-	ProductWriteAPI  productWriteAPI.ProductWriteAPIClient
+	ProductReadAPI   productReadAPI.Client
+	ProductWriteAPI  productWriteAPI.Client
 }
 
 func NewResolver() *Resolver {

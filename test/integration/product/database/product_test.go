@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/davidchristie/cloud/pkg/entity"
-	productDatabase "github.com/davidchristie/cloud/pkg/product-database"
+	productDatabase "github.com/davidchristie/cloud/pkg/product/database"
 	"github.com/google/uuid"
 	"github.com/icrowley/fake"
 	"github.com/stretchr/testify/suite"
