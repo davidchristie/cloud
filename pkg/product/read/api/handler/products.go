@@ -5,11 +5,12 @@ import (
 	"net/http"
 
 	"github.com/davidchristie/cloud/pkg/entity"
-	productDatabase "github.com/davidchristie/cloud/pkg/product-database"
+	productDatabase "github.com/davidchristie/cloud/pkg/product/database"
 )
 
-type productsResponseBody struct {
-	Data []*entity.Product `json:"data"`
+type ProductsResponseBody struct {
+	Data    []*entity.Product `json:"data,omitempty"`
+	Message string            `json:"message,omitempty"`
 }
 
 func ProductsHandler(productRespository productDatabase.ProductRepository) func(http.ResponseWriter, *http.Request) {
@@ -22,13 +23,17 @@ func ProductsHandler(productRespository productDatabase.ProductRepository) func(
 
 		if err != nil {
 			writer.WriteHeader(500)
-			writer.Write([]byte("{\"message\":\"" + err.Error() + "\"}"))
+			response := &ProductsResponseBody{
+				Message: err.Error(),
+			}
+			data, _ := json.Marshal(response)
+			writer.Write(data)
 		} else {
-			response := &productsResponseBody{
+			response := &ProductsResponseBody{
 				Data: products,
 			}
-			blob, _ := json.Marshal(response)
-			writer.Write(blob)
+			data, _ := json.Marshal(response)
+			writer.Write(data)
 		}
 	})
 }

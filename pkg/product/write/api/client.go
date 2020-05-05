@@ -1,4 +1,4 @@
-package client
+package api
 
 import (
 	"bytes"
@@ -8,11 +8,12 @@ import (
 	"net/http"
 
 	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/product/write/api/handler"
 	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 )
 
-type ProductWriteAPIClient interface {
+type Client interface {
 	CreateProduct(name, description string, correlationID uuid.UUID) (*entity.Product, error)
 }
 
@@ -20,23 +21,12 @@ type client struct {
 	URL string
 }
 
-type createProductResponseBody struct {
-	Data    *entity.Product `json:"data"`
-	Message string          `json:"message"`
-}
-
-type createProductRequestBody struct {
-	CorrelationID uuid.UUID `json:"correlation_id"`
-	Description   string    `json:"description"`
-	Name          string    `json:"name"`
-}
-
-type specification struct {
+type clientSpecification struct {
 	URL string `required:"true"`
 }
 
-func NewClient() ProductWriteAPIClient {
-	spec := specification{}
+func NewClient() Client {
+	spec := clientSpecification{}
 	envconfig.MustProcess("PRODUCT_WRITE_API", &spec)
 	return &client{
 		URL: spec.URL,
@@ -44,7 +34,7 @@ func NewClient() ProductWriteAPIClient {
 }
 
 func (c *client) CreateProduct(name, description string, correlationID uuid.UUID) (*entity.Product, error) {
-	requestBodyBytes, err := json.Marshal(&createProductRequestBody{
+	requestBodyBytes, err := json.Marshal(&handler.CreateProductRequestBody{
 		CorrelationID: correlationID,
 		Description:   description,
 		Name:          name,
@@ -73,13 +63,13 @@ func (c *client) CreateProduct(name, description string, correlationID uuid.UUID
 	return body.Data, nil
 }
 
-func unmarshalCreateProductResponseBody(response *http.Response) (*createProductResponseBody, error) {
-	blob, err := ioutil.ReadAll(response.Body)
+func unmarshalCreateProductResponseBody(response *http.Response) (*handler.CreateProductResponseBody, error) {
+	data, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
-	body := createProductResponseBody{}
-	err = json.Unmarshal(blob, &body)
+	body := handler.CreateProductResponseBody{}
+	err = json.Unmarshal(data, &body)
 	if err != nil {
 		return nil, err
 	}
