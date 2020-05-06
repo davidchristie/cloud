@@ -24,7 +24,7 @@ func StartService() error {
 
 	topic := spec.KafkaProductCreatedTopic
 
-	reader := kafka.NewKafkaReader(topic)
+	reader := kafka.NewReader(topic)
 
 	defer reader.Close()
 

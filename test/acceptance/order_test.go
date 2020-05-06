@@ -22,5 +22,5 @@ func (suite *AcceptanceSuite) TestCreateOrder() {
 			}
 		}
 		return false
-	}, 10*time.Second, time.Second)
+	}, 30*time.Second, time.Second)
 }

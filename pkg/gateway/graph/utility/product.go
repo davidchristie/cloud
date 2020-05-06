@@ -6,6 +6,9 @@ import (
 )
 
 func ConvertProductToModel(product *entity.Product) *model.Product {
+	if product == nil {
+		return nil
+	}
 	return &model.Product{
 		Description: product.Description,
 		ID:          product.ID.String(),

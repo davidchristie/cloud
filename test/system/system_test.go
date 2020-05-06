@@ -3,11 +3,11 @@ package system_test
 import (
 	"math/rand"
 	"testing"
-	"time"
 
 	customerReadAPIClient "github.com/davidchristie/cloud/pkg/customer-read-api/client"
 	customerWriteAPIClient "github.com/davidchristie/cloud/pkg/customer-write-api/client"
 	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/kafka"
 	"github.com/davidchristie/cloud/pkg/order"
 	orderReadAPI "github.com/davidchristie/cloud/pkg/order/read/api"
 	"github.com/davidchristie/cloud/pkg/order/write/api"
@@ -36,6 +36,7 @@ func (suite *SystemSuite) SetupTest() {
 	suite.OrderWriteAPI = orderWriteAPI.NewClient()
 	suite.ProductReadAPI = productReadAPI.NewClient()
 	suite.ProductWriteAPI = productWriteAPI.NewClient()
+	kafka.WaitUntilHealthy()
 }
 
 func (suite *SystemSuite) CreateCustomer() (*entity.Customer, error) {
@@ -68,16 +69,6 @@ func (suite *SystemSuite) CreateOrder() (*order.Order, error) {
 
 func (suite *SystemSuite) CreateProduct() (*entity.Product, error) {
 	return suite.ProductWriteAPI.CreateProduct(fake.ProductName(), fake.Sentences(), uuid.New())
-}
-
-func (suite *SystemSuite) WaitFor(done func() bool) {
-	for {
-		if done() {
-			break
-		}
-		suite.T().Log("...")
-		time.Sleep(1 * time.Second)
-	}
 }
 
 func TestSystemSuite(t *testing.T) {

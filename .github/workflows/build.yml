@@ -12,8 +12,6 @@ jobs:
         run: docker-compose build
       - name: Start services
         run: docker-compose up -d
-      - name: Wait 10 seconds
-        run: sleep 10
       - name: Run acceptance tests
         run: docker-compose up --abort-on-container-exit --exit-code-from acceptance acceptance
         working-directory: test

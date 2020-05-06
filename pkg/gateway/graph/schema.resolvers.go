@@ -6,11 +6,13 @@ package graph
 import (
 	"context"
 
+	customerReadAPI "github.com/davidchristie/cloud/pkg/customer-read-api/client"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/generated"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/model"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/utility"
 	"github.com/davidchristie/cloud/pkg/order"
 	"github.com/davidchristie/cloud/pkg/order/write/api"
+	productReadAPI "github.com/davidchristie/cloud/pkg/product/read/api"
 	"github.com/google/uuid"
 )
 
@@ -71,7 +73,6 @@ func (r *queryResolver) Customers(ctx context.Context) ([]*model.Customer, error
 	return modelCustomers, nil
 }
 
-// TODO: Don't fetch customers and products unless they are included in the query.
 func (r *queryResolver) Orders(ctx context.Context) ([]*model.Order, error) {
 	orders, err := r.OrderReadAPI.Orders()
 	if err != nil {
@@ -80,14 +81,14 @@ func (r *queryResolver) Orders(ctx context.Context) ([]*model.Order, error) {
 	modelOrders := make([]*model.Order, len(orders))
 	for i, order := range orders {
 		customer, err := r.CustomerReadAPI.Customer(order.CustomerID)
-		if err != nil {
+		if err != nil && err != customerReadAPI.ErrCustomerNotFound {
 			return nil, err
 		}
 		lineItemModels := make([]*model.LineItem, len(order.LineItems))
 		for i, lineItem := range order.LineItems {
 			// TODO: Fetch all line item products in a single request.
 			product, err := r.ProductReadAPI.Product(lineItem.ProductID)
-			if err != nil {
+			if err != nil && err != productReadAPI.ErrProductNotFound {
 				return nil, err
 			}
 			lineItemModels[i] = &model.LineItem{

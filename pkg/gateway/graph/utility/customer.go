@@ -6,6 +6,9 @@ import (
 )
 
 func ConvertCustomerToModel(customer *entity.Customer) *model.Customer {
+	if customer == nil {
+		return nil
+	}
 	return &model.Customer{
 		FirstName: customer.FirstName,
 		ID:        customer.ID.String(),

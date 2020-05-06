@@ -6,6 +6,7 @@ import (
 
 	"github.com/davidchristie/cloud/pkg/entity"
 	"github.com/davidchristie/cloud/pkg/gateway"
+	"github.com/davidchristie/cloud/pkg/kafka"
 	"github.com/davidchristie/cloud/pkg/order"
 	"github.com/icrowley/fake"
 	"github.com/stretchr/testify/suite"
@@ -18,6 +19,7 @@ type AcceptanceSuite struct {
 
 func (suite *AcceptanceSuite) SetupTest() {
 	suite.Gateway = gateway.NewClient()
+	kafka.WaitUntilHealthy()
 }
 
 func (suite *AcceptanceSuite) CreateCustomer() (*entity.Customer, error) {

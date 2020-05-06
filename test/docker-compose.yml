@@ -3,8 +3,11 @@ version: "3.7"
 services:
   acceptance:
     command: go test -count 1 -v ./...
+    env_file:
+      - ../configs/kafka.env
     environment:
       - GATEWAY_URL=http://gateway:8080
+      - KAFKA_GROUP_ID=acceptance-tests
     image: golang
     networks:
       - cloud
@@ -27,9 +30,12 @@ services:
 
   system:
     command: go test -count 1 -v ./...
+    env_file:
+      - ../configs/kafka.env
     environment:
       - CUSTOMER_READ_API_URL=http://customer-read-api:8080
       - CUSTOMER_WRITE_API_URL=http://customer-write-api:8080
+      - KAFKA_GROUP_ID=system-tests
       - ORDER_READ_API_URL=http://order-read-api:8080
       - ORDER_WRITE_API_URL=http://order-write-api:8080
       - PRODUCT_READ_API_URL=http://product-read-api:8080

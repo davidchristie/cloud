@@ -25,12 +25,12 @@ type Customer {
 }
 
 type LineItem {
-  product: Product!
+  product: Product
   quantity: Int!
 }
 
 type Order {
-  customer: Customer!
+  customer: Customer
   createdAt: String!
   id: ID!
   lineItems: [LineItem!]!

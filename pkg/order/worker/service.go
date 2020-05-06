@@ -24,7 +24,7 @@ func StartService() {
 
 	topic := spec.KafkaOrderCreatedTopic
 
-	reader := kafka.NewKafkaReader(topic)
+	reader := kafka.NewReader(topic)
 
 	defer reader.Close()
 
