@@ -3,7 +3,6 @@ package system_test
 import (
 	"math/rand"
 	"testing"
-	"time"
 
 	customerReadAPIClient "github.com/davidchristie/cloud/pkg/customer-read-api/client"
 	customerWriteAPIClient "github.com/davidchristie/cloud/pkg/customer-write-api/client"
@@ -68,16 +67,6 @@ func (suite *SystemSuite) CreateOrder() (*order.Order, error) {
 
 func (suite *SystemSuite) CreateProduct() (*entity.Product, error) {
 	return suite.ProductWriteAPI.CreateProduct(fake.ProductName(), fake.Sentences(), uuid.New())
-}
-
-func (suite *SystemSuite) WaitFor(done func() bool) {
-	for {
-		if done() {
-			break
-		}
-		suite.T().Log("...")
-		time.Sleep(1 * time.Second)
-	}
 }
 
 func TestSystemSuite(t *testing.T) {
