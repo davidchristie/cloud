@@ -7,6 +7,7 @@ import (
 	customerReadAPIClient "github.com/davidchristie/cloud/pkg/customer-read-api/client"
 	customerWriteAPIClient "github.com/davidchristie/cloud/pkg/customer-write-api/client"
 	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/kafka"
 	"github.com/davidchristie/cloud/pkg/order"
 	orderReadAPI "github.com/davidchristie/cloud/pkg/order/read/api"
 	"github.com/davidchristie/cloud/pkg/order/write/api"
@@ -35,6 +36,7 @@ func (suite *SystemSuite) SetupTest() {
 	suite.OrderWriteAPI = orderWriteAPI.NewClient()
 	suite.ProductReadAPI = productReadAPI.NewClient()
 	suite.ProductWriteAPI = productWriteAPI.NewClient()
+	kafka.WaitUntilHealthy()
 }
 
 func (suite *SystemSuite) CreateCustomer() (*entity.Customer, error) {

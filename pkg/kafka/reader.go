@@ -11,7 +11,7 @@ type readerSpecification struct {
 
 type Reader = kafka.Reader
 
-func NewKafkaReader(topic string) *Reader {
+func NewReader(topic string) *Reader {
 	kafkaSpec := kafkaSpecification{}
 	readerSpec := readerSpecification{}
 	envconfig.MustProcess(prefix, &kafkaSpec)

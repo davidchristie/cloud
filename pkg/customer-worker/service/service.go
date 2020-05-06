@@ -24,7 +24,7 @@ func Start() {
 
 	topic := spec.KafkaCustomerCreatedTopic
 
-	reader := kafka.NewKafkaReader(topic)
+	reader := kafka.NewReader(topic)
 
 	defer reader.Close()
 
