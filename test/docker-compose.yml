@@ -1,6 +1,17 @@
 version: "3.7"
 
 services:
+  acceptance:
+    command: go test -count 1 -v ./...
+    environment:
+      - GATEWAY_URL=http://gateway:8080
+    image: golang
+    networks:
+      - cloud
+    volumes:
+      - ..:/cloud
+    working_dir: /cloud/test/acceptance
+
   integration:
     command: go test -count 1 -v ./...
     env_file:

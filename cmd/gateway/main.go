@@ -1,7 +1,11 @@
 package main
 
-import "github.com/davidchristie/cloud/pkg/gateway"
+import (
+	"log"
+
+	"github.com/davidchristie/cloud/pkg/gateway"
+)
 
 func main() {
-	gateway.StartService()
+	log.Fatal(gateway.StartService())
 }
