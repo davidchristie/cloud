@@ -38,7 +38,7 @@ services:
       - configs/kafka.env
       - configs/customer-database.env
     environment:
-      - KAFKA_GROUP_ID=mongo-group
+      - KAFKA_GROUP_ID=customer-worker
     image: customer-worker
     restart: on-failure
 
@@ -135,7 +135,7 @@ services:
       - configs/kafka.env
       - configs/order-database.env
     environment:
-      - KAFKA_GROUP_ID=mongo-group
+      - KAFKA_GROUP_ID=order-worker
     image: order-worker
     restart: on-failure
 
@@ -182,7 +182,7 @@ services:
       - configs/kafka.env
       - configs/product-database.env
     environment:
-      - KAFKA_GROUP_ID=mongo-group
+      - KAFKA_GROUP_ID=product-worker
     image: product-worker
     restart: on-failure
 
