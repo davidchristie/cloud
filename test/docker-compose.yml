@@ -8,7 +8,7 @@ services:
     environment:
       - GATEWAY_URL=http://gateway:8080
       - KAFKA_GROUP_ID=acceptance-tests
-    image: golang
+    image: cloud
     networks:
       - cloud
     volumes:
@@ -21,7 +21,7 @@ services:
       - ../configs/customer-database.env
       - ../configs/order-database.env
       - ../configs/product-database.env
-    image: golang
+    image: cloud
     networks:
       - cloud
     volumes:
@@ -40,7 +40,7 @@ services:
       - ORDER_WRITE_API_URL=http://order-write-api:8080
       - PRODUCT_READ_API_URL=http://product-read-api:8080
       - PRODUCT_WRITE_API_URL=http://product-write-api:8080
-    image: golang
+    image: cloud
     networks:
       - cloud
     volumes:
