@@ -9,6 +9,9 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/icrowley/fake v0.0.0-20180203215853-4178557ae428
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/machinebox/graphql v0.2.2
+	github.com/matryer/is v1.3.0 // indirect
+	github.com/mitchellh/mapstructure v1.3.0
 	github.com/neo4j-drivers/gobolt v1.7.4 // indirect
 	github.com/neo4j/neo4j-go-driver v1.7.4
 	github.com/onsi/ginkgo v1.12.0 // indirect

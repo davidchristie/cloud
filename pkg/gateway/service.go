@@ -5,27 +5,27 @@ package gateway
 import (
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/davidchristie/cloud/pkg/gateway/graph"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/generated"
+	"github.com/kelseyhightower/envconfig"
 )
 
-const defaultPort = "8080"
+type serviceSpecification struct {
+	Port string `default:"8080"`
+}
 
-func StartService() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
-	}
+func StartService() error {
+	spec := serviceSpecification{}
+	envconfig.MustProcess("", &spec)
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: graph.NewResolver()}))
+	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: graph.NewResolver()}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	http.Handle("/query", server)
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Printf("connect to http://localhost:%s/ for GraphQL playground", spec.Port)
+	return http.ListenAndServe(":"+spec.Port, nil)
 }
