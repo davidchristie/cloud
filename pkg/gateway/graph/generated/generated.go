@@ -338,12 +338,12 @@ type Customer {
 }
 
 type LineItem {
-  product: Product!
+  product: Product
   quantity: Int!
 }
 
 type Order {
-  customer: Customer!
+  customer: Customer
   createdAt: String!
   id: ID!
   lineItems: [LineItem!]!
@@ -592,14 +592,11 @@ func (ec *executionContext) _LineItem_product(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Product)
 	fc.Result = res
-	return ec.marshalNProduct2ᚖgithubᚗcomᚋdavidchristieᚋcloudᚋpkgᚋgatewayᚋgraphᚋmodelᚐProduct(ctx, field.Selections, res)
+	return ec.marshalOProduct2ᚖgithubᚗcomᚋdavidchristieᚋcloudᚋpkgᚋgatewayᚋgraphᚋmodelᚐProduct(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _LineItem_quantity(ctx context.Context, field graphql.CollectedField, obj *model.LineItem) (ret graphql.Marshaler) {
@@ -783,14 +780,11 @@ func (ec *executionContext) _Order_customer(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Customer)
 	fc.Result = res
-	return ec.marshalNCustomer2ᚖgithubᚗcomᚋdavidchristieᚋcloudᚋpkgᚋgatewayᚋgraphᚋmodelᚐCustomer(ctx, field.Selections, res)
+	return ec.marshalOCustomer2ᚖgithubᚗcomᚋdavidchristieᚋcloudᚋpkgᚋgatewayᚋgraphᚋmodelᚐCustomer(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Order_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Order) (ret graphql.Marshaler) {
@@ -2377,9 +2371,6 @@ func (ec *executionContext) _LineItem(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = graphql.MarshalString("LineItem")
 		case "product":
 			out.Values[i] = ec._LineItem_product(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "quantity":
 			out.Values[i] = ec._LineItem_quantity(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2450,9 +2441,6 @@ func (ec *executionContext) _Order(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = graphql.MarshalString("Order")
 		case "customer":
 			out.Values[i] = ec._Order_customer(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "createdAt":
 			out.Values[i] = ec._Order_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3384,6 +3372,28 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
+}
+
+func (ec *executionContext) marshalOCustomer2githubᚗcomᚋdavidchristieᚋcloudᚋpkgᚋgatewayᚋgraphᚋmodelᚐCustomer(ctx context.Context, sel ast.SelectionSet, v model.Customer) graphql.Marshaler {
+	return ec._Customer(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOCustomer2ᚖgithubᚗcomᚋdavidchristieᚋcloudᚋpkgᚋgatewayᚋgraphᚋmodelᚐCustomer(ctx context.Context, sel ast.SelectionSet, v *model.Customer) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Customer(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOProduct2githubᚗcomᚋdavidchristieᚋcloudᚋpkgᚋgatewayᚋgraphᚋmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v model.Product) graphql.Marshaler {
+	return ec._Product(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOProduct2ᚖgithubᚗcomᚋdavidchristieᚋcloudᚋpkgᚋgatewayᚋgraphᚋmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v *model.Product) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Product(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
