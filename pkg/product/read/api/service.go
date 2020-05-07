@@ -1,11 +1,10 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
-	productDatabase "github.com/davidchristie/cloud/pkg/product/database"
-	"github.com/davidchristie/cloud/pkg/product/read/api/handler"
+	"github.com/davidchristie/cloud/pkg/product/read/api/core"
+	"github.com/davidchristie/cloud/pkg/product/read/api/router"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -16,16 +15,7 @@ type serviceSpecification struct {
 func StartService() error {
 	spec := serviceSpecification{}
 	envconfig.MustProcess("", &spec)
-
-	db := productDatabase.Connect()
-
-	productRepository := productDatabase.NewProductRepository(db)
-
-	http.HandleFunc("/products", handler.ProductsHandler(productRepository))
-
-	fmt.Println("serving")
-
-	address := ":" + spec.Port
-
-	return http.ListenAndServe(address, nil)
+	c := core.NewCore()
+	r := router.NewRouter(c)
+	return http.ListenAndServe(":"+spec.Port, r)
 }

@@ -6,6 +6,8 @@ require (
 	github.com/99designs/gqlgen v0.11.3
 	github.com/corpix/uarand v0.1.1 // indirect
 	github.com/google/uuid v1.1.1
+	github.com/gorilla/handlers v1.4.2
+	github.com/gorilla/mux v1.7.4
 	github.com/icrowley/fake v0.0.0-20180203215853-4178557ae428
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/machinebox/graphql v0.2.2

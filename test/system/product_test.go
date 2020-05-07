@@ -17,6 +17,7 @@ func (suite *SystemSuite) TestCreateProduct() {
 		product, err := suite.ProductReadAPI.Product(createdProduct.ID)
 
 		if err != productReadAPI.ErrProductNotFound {
+			suite.Assert().Nil(err)
 			suite.Assert().Equal(createdProduct, product)
 
 			return true

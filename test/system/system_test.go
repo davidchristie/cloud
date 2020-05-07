@@ -29,7 +29,7 @@ type SystemSuite struct {
 	ProductWriteAPI  productWriteAPI.Client
 }
 
-func (suite *SystemSuite) SetupTest() {
+func (suite *SystemSuite) SetupSuite() {
 	suite.CustomerReadAPI = customerReadAPIClient.NewClient()
 	suite.CustomerWriteAPI = customerWriteAPIClient.NewClient()
 	suite.OrderReadAPI = orderReadAPI.NewClient()

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/davidchristie/cloud/pkg/entity"
-	productDatabase "github.com/davidchristie/cloud/pkg/product/database"
+	"github.com/davidchristie/cloud/pkg/product/read/api/core"
 )
 
 type ProductsResponseBody struct {
@@ -13,27 +13,25 @@ type ProductsResponseBody struct {
 	Message string            `json:"message,omitempty"`
 }
 
-func ProductsHandler(productRespository productDatabase.ProductRepository) func(http.ResponseWriter, *http.Request) {
+func ProductsHandler(c core.Core) func(http.ResponseWriter, *http.Request) {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		ctx := request.Context()
-
-		products, err := productRespository.GetProducts(ctx)
+		response := ProductsResponseBody{}
 
 		writer.Header().Add("Content-Type", "application/json")
 
-		if err != nil {
+		products, err := c.Products(request.Context())
+		switch err {
+		case nil:
+			response.Data = products
+			break
+
+		default:
 			writer.WriteHeader(500)
-			response := &ProductsResponseBody{
-				Message: err.Error(),
-			}
-			data, _ := json.Marshal(response)
-			writer.Write(data)
-		} else {
-			response := &ProductsResponseBody{
-				Data: products,
-			}
-			data, _ := json.Marshal(response)
-			writer.Write(data)
+			response.Message = "Internal Server Error"
+			break
 		}
+
+		data, _ := json.Marshal(response)
+		writer.Write(data)
 	})
 }
