@@ -2,8 +2,7 @@ package database
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
+	"errors"
 
 	"github.com/davidchristie/cloud/pkg/entity"
 	"github.com/google/uuid"
@@ -14,7 +13,8 @@ import (
 
 type ProductRepository interface {
 	CreateProduct(context.Context, *entity.Product) error
-	GetProducts(context.Context) ([]*entity.Product, error)
+	FindProduct(context.Context, uuid.UUID) (*entity.Product, error)
+	FindProducts(context.Context) ([]*entity.Product, error)
 }
 
 type productRepository struct {
@@ -24,6 +24,8 @@ type productRepository struct {
 type productSpecification struct {
 	ProductCollectionName string `required:"true" split_words:"true"`
 }
+
+var ErrProductNotFound = errors.New("product not found")
 
 func NewProductRepository(database *mongo.Database) ProductRepository {
 	spec := productSpecification{}
@@ -38,68 +40,50 @@ func NewProductRepository(database *mongo.Database) ProductRepository {
 }
 
 func (p *productRepository) CreateProduct(ctx context.Context, product *entity.Product) error {
-	document, err := encodeProduct(product)
+	_, err := p.collection.InsertOne(context.Background(), product)
 	if err != nil {
 		return err
 	}
-	insertResult, err := p.collection.InsertOne(context.Background(), document)
-	if err != nil {
-		return err
-	}
-	fmt.Println("inserted a single product: ", insertResult.InsertedID)
 	return nil
 }
 
-func (p *productRepository) GetProducts(ctx context.Context) ([]*entity.Product, error) {
+func (p *productRepository) FindProduct(ctx context.Context, id uuid.UUID) (*entity.Product, error) {
+	result := p.collection.FindOne(ctx, bson.D{
+		{Key: "id", Value: id},
+	})
+	err := result.Err()
+	if err == mongo.ErrNoDocuments {
+		return nil, ErrProductNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	product := entity.Product{}
+	err = result.Decode(&product)
+	if err != nil {
+		return nil, err
+	}
+	return &product, nil
+}
+
+func (p *productRepository) FindProducts(ctx context.Context) ([]*entity.Product, error) {
 	cursor, err := p.collection.Find(ctx, bson.M{})
 	defer cursor.Close(ctx)
 	if err != nil {
 		return nil, err
 	}
-	documents := &[]bson.Raw{}
-	err = cursor.All(ctx, documents)
-	if err != nil {
-		return nil, err
-	}
-	products, err := convertDocumentsToProducts(documents)
-	if err != nil {
-		return nil, err
-	}
-	return products, nil
-}
 
-func convertDocumentsToProducts(documents *[]bson.Raw) ([]*entity.Product, error) {
-	products := make([]*entity.Product, len(*documents))
-	for i, document := range *documents {
-		product, err := decodeProduct(&document)
+	var results []*entity.Product
+
+	for cursor.Next(ctx) {
+		product := &entity.Product{}
+
+		err := cursor.Decode(product)
 		if err != nil {
 			return nil, err
 		}
-		products[i] = product
+		results = append(results, product)
 	}
-	return products, nil
-}
 
-func decodeProduct(document *bson.Raw) (*entity.Product, error) {
-	id, err := uuid.Parse(document.Lookup("id").StringValue())
-	if err != nil {
-		return nil, err
-	}
-	product := entity.Product{
-		Description: document.Lookup("description").StringValue(),
-		ID:          id,
-		Name:        document.Lookup("name").StringValue(),
-	}
-	return &product, nil
-}
-
-func encodeProduct(product *entity.Product) (*map[string]interface{}, error) {
-	document := make(map[string]interface{})
-	data, err := json.Marshal(product)
-	if err != nil {
-		return nil, err
-	}
-	json.Unmarshal(data, &document)
-	document["_id"] = product.ID.String()
-	return &document, err
+	return results, nil
 }

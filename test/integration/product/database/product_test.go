@@ -36,7 +36,12 @@ func (suite *DatabaseSuite) TestCreateProduct() {
 
 	suite.Assert().Nil(err)
 
-	products, err := suite.ProductRepository.GetProducts(context.Background())
+	product, err := suite.ProductRepository.FindProduct(context.Background(), createdProduct.ID)
+
+	suite.Assert().Nil(err)
+	suite.Assert().Equal(createdProduct, product)
+
+	products, err := suite.ProductRepository.FindProducts(context.Background())
 
 	suite.Assert().Nil(err)
 	suite.Assert().Contains(products, createdProduct)

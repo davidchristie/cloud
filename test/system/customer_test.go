@@ -17,7 +17,9 @@ func (suite *SystemSuite) TestCreateCustomer() {
 		customer, err := suite.CustomerReadAPI.Customer(createdCustomer.ID)
 
 		if err != customerReadAPIClient.ErrCustomerNotFound {
+			suite.Assert().Nil(err)
 			suite.Assert().Equal(createdCustomer, customer)
+
 			return true
 		}
 

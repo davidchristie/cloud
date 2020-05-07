@@ -17,7 +17,7 @@ type AcceptanceSuite struct {
 	Gateway gateway.Client
 }
 
-func (suite *AcceptanceSuite) SetupTest() {
+func (suite *AcceptanceSuite) SetupSuite() {
 	suite.Gateway = gateway.NewClient()
 	kafka.WaitUntilHealthy()
 }
