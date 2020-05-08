@@ -4,14 +4,15 @@ import (
 	"math/rand"
 	"testing"
 
-	customerReadAPIClient "github.com/davidchristie/cloud/pkg/customer-read-api/client"
-	customerWriteAPIClient "github.com/davidchristie/cloud/pkg/customer-write-api/client"
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/customer"
+	customerReadAPI "github.com/davidchristie/cloud/pkg/customer/read/api"
+	customerWriteAPI "github.com/davidchristie/cloud/pkg/customer/write/api"
 	"github.com/davidchristie/cloud/pkg/kafka"
 	"github.com/davidchristie/cloud/pkg/order"
 	orderReadAPI "github.com/davidchristie/cloud/pkg/order/read/api"
 	"github.com/davidchristie/cloud/pkg/order/write/api"
 	orderWriteAPI "github.com/davidchristie/cloud/pkg/order/write/api"
+	"github.com/davidchristie/cloud/pkg/product"
 	productReadAPI "github.com/davidchristie/cloud/pkg/product/read/api"
 	productWriteAPI "github.com/davidchristie/cloud/pkg/product/write/api"
 	"github.com/google/uuid"
@@ -21,8 +22,8 @@ import (
 
 type SystemSuite struct {
 	suite.Suite
-	CustomerReadAPI  customerReadAPIClient.CustomerReadAPIClient
-	CustomerWriteAPI customerWriteAPIClient.CustomerWriteAPIClient
+	CustomerReadAPI  customerReadAPI.Client
+	CustomerWriteAPI customerWriteAPI.Client
 	OrderReadAPI     orderReadAPI.OrderReadAPIClient
 	OrderWriteAPI    orderWriteAPI.OrderWriteAPIClient
 	ProductReadAPI   productReadAPI.Client
@@ -30,8 +31,8 @@ type SystemSuite struct {
 }
 
 func (suite *SystemSuite) SetupSuite() {
-	suite.CustomerReadAPI = customerReadAPIClient.NewClient()
-	suite.CustomerWriteAPI = customerWriteAPIClient.NewClient()
+	suite.CustomerReadAPI = customerReadAPI.NewClient()
+	suite.CustomerWriteAPI = customerWriteAPI.NewClient()
 	suite.OrderReadAPI = orderReadAPI.NewClient()
 	suite.OrderWriteAPI = orderWriteAPI.NewClient()
 	suite.ProductReadAPI = productReadAPI.NewClient()
@@ -39,7 +40,7 @@ func (suite *SystemSuite) SetupSuite() {
 	kafka.WaitUntilHealthy()
 }
 
-func (suite *SystemSuite) CreateCustomer() (*entity.Customer, error) {
+func (suite *SystemSuite) CreateCustomer() (*customer.Customer, error) {
 	return suite.CustomerWriteAPI.CreateCustomer(fake.FirstName(), fake.LastName(), uuid.New())
 }
 
@@ -67,7 +68,7 @@ func (suite *SystemSuite) CreateOrder() (*order.Order, error) {
 	})
 }
 
-func (suite *SystemSuite) CreateProduct() (*entity.Product, error) {
+func (suite *SystemSuite) CreateProduct() (*product.Product, error) {
 	return suite.ProductWriteAPI.CreateProduct(fake.ProductName(), fake.Sentences(), uuid.New())
 }
 

@@ -6,7 +6,7 @@ package graph
 import (
 	"context"
 
-	customerReadAPI "github.com/davidchristie/cloud/pkg/customer-read-api/client"
+	customerReadAPI "github.com/davidchristie/cloud/pkg/customer/read/api"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/generated"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/model"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/utility"

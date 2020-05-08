@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/product"
 	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,7 +12,7 @@ import (
 )
 
 type ProductRepository interface {
-	CreateProduct(context.Context, *entity.Product) error
+	CreateProduct(context.Context, *product.Product) error
 	HasProduct(context.Context, uuid.UUID) (bool, error)
 }
 
@@ -33,7 +33,7 @@ func NewProductRepository(database *mongo.Database) ProductRepository {
 	}
 }
 
-func (p *productRepository) CreateProduct(ctx context.Context, product *entity.Product) error {
+func (p *productRepository) CreateProduct(ctx context.Context, product *product.Product) error {
 	document := encodeProduct(product)
 	insertResult, err := p.collection.InsertOne(context.Background(), document)
 	if err != nil {
@@ -60,7 +60,7 @@ func (p *productRepository) HasProduct(ctx context.Context, id uuid.UUID) (bool,
 	}
 }
 
-func encodeProduct(product *entity.Product) *map[string]interface{} {
+func encodeProduct(product *product.Product) *map[string]interface{} {
 	return &map[string]interface{}{
 		"_id": product.ID.String(),
 	}

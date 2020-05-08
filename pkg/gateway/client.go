@@ -3,19 +3,20 @@ package gateway
 import (
 	"context"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/customer"
 	"github.com/davidchristie/cloud/pkg/order"
+	"github.com/davidchristie/cloud/pkg/product"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/machinebox/graphql"
 )
 
 type Client interface {
-	CreateCustomer(*CreateCustomerInput) (*entity.Customer, error)
+	CreateCustomer(*CreateCustomerInput) (*customer.Customer, error)
 	CreateOrder(*CreateOrderInput) (*order.Order, error)
-	CreateProduct(*CreateProductInput) (*entity.Product, error)
-	Customers() ([]*entity.Customer, error)
+	CreateProduct(*CreateProductInput) (*product.Product, error)
+	Customers() ([]*customer.Customer, error)
 	Orders() ([]*order.Order, error)
-	Products() ([]*entity.Product, error)
+	Products() ([]*product.Product, error)
 }
 
 type client struct {
@@ -51,7 +52,7 @@ type LineItemInput struct {
 // Responses
 
 type createCustomerResponse struct {
-	CreateCustomer *entity.Customer
+	CreateCustomer *customer.Customer
 }
 
 type createOrderResponse struct {
@@ -59,11 +60,11 @@ type createOrderResponse struct {
 }
 
 type createProductResponse struct {
-	CreateProduct *entity.Product
+	CreateProduct *product.Product
 }
 
 type customersResponse struct {
-	Customers []*entity.Customer
+	Customers []*customer.Customer
 }
 
 type ordersResponse struct {
@@ -71,7 +72,7 @@ type ordersResponse struct {
 }
 
 type productsResponse struct {
-	Products []*entity.Product
+	Products []*product.Product
 }
 
 func NewClient() Client {
@@ -82,7 +83,7 @@ func NewClient() Client {
 	}
 }
 
-func (c *client) CreateCustomer(input *CreateCustomerInput) (*entity.Customer, error) {
+func (c *client) CreateCustomer(input *CreateCustomerInput) (*customer.Customer, error) {
 	ctx := context.Background()
 	request := graphql.NewRequest(`
 		mutation ($input: CreateCustomerInput!) {
@@ -118,7 +119,7 @@ func (c *client) CreateOrder(input *CreateOrderInput) (*order.Order, error) {
 	return response.CreateOrder, nil
 }
 
-func (c *client) CreateProduct(input *CreateProductInput) (*entity.Product, error) {
+func (c *client) CreateProduct(input *CreateProductInput) (*product.Product, error) {
 	ctx := context.Background()
 	request := graphql.NewRequest(`
 		mutation ($input: CreateProductInput!) {
@@ -137,7 +138,7 @@ func (c *client) CreateProduct(input *CreateProductInput) (*entity.Product, erro
 	return response.CreateProduct, nil
 }
 
-func (c *client) Customers() ([]*entity.Customer, error) {
+func (c *client) Customers() ([]*customer.Customer, error) {
 	ctx := context.Background()
 	request := graphql.NewRequest(`
 		query {
@@ -184,7 +185,7 @@ func (c *client) Orders() ([]*order.Order, error) {
 	return response.Orders, nil
 }
 
-func (c *client) Products() ([]*entity.Product, error) {
+func (c *client) Products() ([]*product.Product, error) {
 	ctx := context.Background()
 	request := graphql.NewRequest(`
 		query {

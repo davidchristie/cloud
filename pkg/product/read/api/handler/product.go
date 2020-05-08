@@ -5,14 +5,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/product"
 	"github.com/davidchristie/cloud/pkg/product/read/api/core"
 	"github.com/gorilla/mux"
 )
 
 type ProductResponseBody struct {
-	Data    *entity.Product `json:"data,omitempty"`
-	Message string          `json:"message,omitempty"`
+	Data    *product.Product `json:"data,omitempty"`
+	Message string           `json:"message,omitempty"`
 }
 
 func ProductHandler(c core.Core) func(http.ResponseWriter, *http.Request) {

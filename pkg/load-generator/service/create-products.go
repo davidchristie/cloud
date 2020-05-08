@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/product"
 	"github.com/google/uuid"
 	"github.com/icrowley/fake"
 )
 
-func (s *service) CreateFakeProduct() (*entity.Product, error) {
+func (s *service) CreateFakeProduct() (*product.Product, error) {
 	fmt.Println("create fake product")
 	return s.ProductWriteAPI.CreateProduct(fake.ProductName(), fake.Sentences(), uuid.New())
 }

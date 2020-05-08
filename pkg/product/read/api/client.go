@@ -7,15 +7,15 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/product"
 	"github.com/davidchristie/cloud/pkg/product/read/api/handler"
 	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 )
 
 type Client interface {
-	Product(uuid.UUID) (*entity.Product, error)
-	Products() ([]*entity.Product, error)
+	Product(uuid.UUID) (*product.Product, error)
+	Products() ([]*product.Product, error)
 }
 
 type client struct {
@@ -36,7 +36,7 @@ func NewClient() Client {
 	}
 }
 
-func (c *client) Product(id uuid.UUID) (*entity.Product, error) {
+func (c *client) Product(id uuid.UUID) (*product.Product, error) {
 	url := c.url + "/products/" + id.String()
 	response, err := http.Get(url)
 	if err != nil {
@@ -63,7 +63,7 @@ func (c *client) Product(id uuid.UUID) (*entity.Product, error) {
 	return body.Data, nil
 }
 
-func (c *client) Products() ([]*entity.Product, error) {
+func (c *client) Products() ([]*product.Product, error) {
 	url := c.url + "/products"
 	response, err := http.Get(url)
 	if err != nil {

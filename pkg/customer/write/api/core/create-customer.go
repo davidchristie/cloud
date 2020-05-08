@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/customer"
 	"github.com/davidchristie/cloud/pkg/message"
 	"github.com/google/uuid"
 	"github.com/segmentio/kafka-go"
@@ -19,11 +19,11 @@ type CreateCustomerInput struct {
 }
 
 type CreateCustomerOutput struct {
-	CreatedCustomer *entity.Customer
+	CreatedCustomer *customer.Customer
 }
 
 func (c *core) CreateCustomer(input *CreateCustomerInput) (*CreateCustomerOutput, error) {
-	customer := entity.Customer{
+	customer := customer.Customer{
 		FirstName: input.FirstName,
 		ID:        uuid.New(),
 		LastName:  input.LastName,

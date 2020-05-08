@@ -3,13 +3,13 @@ package database_test
 import (
 	"context"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/customer"
 	"github.com/google/uuid"
 	"github.com/icrowley/fake"
 )
 
 func (suite *DatabaseSuite) TestCreateCustomer() {
-	createdCustomer := entity.Customer{
+	createdCustomer := customer.Customer{
 		FirstName: fake.FirstName() + "+" + uuid.New().String(),
 		ID:        uuid.New(),
 		LastName:  fake.LastName() + "+" + uuid.New().String(),

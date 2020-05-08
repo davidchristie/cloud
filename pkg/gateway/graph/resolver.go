@@ -5,8 +5,8 @@ package graph
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 import (
-	customerReadAPI "github.com/davidchristie/cloud/pkg/customer-read-api/client"
-	customerWriteAPI "github.com/davidchristie/cloud/pkg/customer-write-api/client"
+	customerReadAPI "github.com/davidchristie/cloud/pkg/customer/read/api"
+	customerWriteAPI "github.com/davidchristie/cloud/pkg/customer/write/api"
 	orderReadAPI "github.com/davidchristie/cloud/pkg/order/read/api"
 	orderWriteAPI "github.com/davidchristie/cloud/pkg/order/write/api"
 	productReadAPI "github.com/davidchristie/cloud/pkg/product/read/api"
@@ -14,8 +14,8 @@ import (
 )
 
 type Resolver struct {
-	CustomerReadAPI  customerReadAPI.CustomerReadAPIClient
-	CustomerWriteAPI customerWriteAPI.CustomerWriteAPIClient
+	CustomerReadAPI  customerReadAPI.Client
+	CustomerWriteAPI customerWriteAPI.Client
 	OrderReadAPI     orderReadAPI.OrderReadAPIClient
 	OrderWriteAPI    orderWriteAPI.OrderWriteAPIClient
 	ProductReadAPI   productReadAPI.Client

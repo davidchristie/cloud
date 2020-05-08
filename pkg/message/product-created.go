@@ -1,8 +1,8 @@
 package message
 
-import "github.com/davidchristie/cloud/pkg/entity"
+import "github.com/davidchristie/cloud/pkg/product"
 
 type ProductCreatedEvent struct {
-	Data     *entity.Product `json:"data"`
-	Metadata *EventMetadata  `json:"metadata"`
+	Data     *product.Product `json:"data"`
+	Metadata *EventMetadata   `json:"metadata"`
 }

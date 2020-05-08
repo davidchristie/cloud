@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/product"
 	"github.com/davidchristie/cloud/pkg/product/write/api/core"
 	"github.com/google/uuid"
 )
@@ -18,8 +18,8 @@ type CreateProductRequestBody struct {
 }
 
 type CreateProductResponseBody struct {
-	Data    *entity.Product `json:"data,omitempty"`
-	Message string          `json:"message,omitempty"`
+	Data    *product.Product `json:"data,omitempty"`
+	Message string           `json:"message,omitempty"`
 }
 
 func CreateProductHandler(c core.Core) func(http.ResponseWriter, *http.Request) {
