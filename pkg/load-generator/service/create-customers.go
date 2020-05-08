@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/customer"
 	"github.com/google/uuid"
 	"github.com/icrowley/fake"
 )
 
-func (s *service) CreateFakeCustomer() (*entity.Customer, error) {
+func (s *service) CreateFakeCustomer() (*customer.Customer, error) {
 	fmt.Println("create fake customer")
 	return s.CustomerWriteAPI.CreateCustomer(fake.FirstName(), fake.LastName(), uuid.New())
 }

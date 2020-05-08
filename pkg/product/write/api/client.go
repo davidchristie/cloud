@@ -7,14 +7,14 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/product"
 	"github.com/davidchristie/cloud/pkg/product/write/api/handler"
 	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 )
 
 type Client interface {
-	CreateProduct(name, description string, correlationID uuid.UUID) (*entity.Product, error)
+	CreateProduct(name, description string, correlationID uuid.UUID) (*product.Product, error)
 }
 
 type client struct {
@@ -33,7 +33,7 @@ func NewClient() Client {
 	}
 }
 
-func (c *client) CreateProduct(name, description string, correlationID uuid.UUID) (*entity.Product, error) {
+func (c *client) CreateProduct(name, description string, correlationID uuid.UUID) (*product.Product, error) {
 	requestBodyBytes, err := json.Marshal(&handler.CreateProductRequestBody{
 		CorrelationID: correlationID,
 		Description:   description,

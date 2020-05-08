@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/davidchristie/cloud/pkg/entity"
 	"github.com/davidchristie/cloud/pkg/message"
+	"github.com/davidchristie/cloud/pkg/product"
 	"github.com/google/uuid"
 	"github.com/segmentio/kafka-go"
 )
@@ -19,11 +19,11 @@ type CreateProductInput struct {
 }
 
 type CreateProductOutput struct {
-	CreatedProduct *entity.Product
+	CreatedProduct *product.Product
 }
 
 func (c *core) CreateProduct(input *CreateProductInput) (*CreateProductOutput, error) {
-	product := entity.Product{
+	product := product.Product{
 		Description: input.Description,
 		ID:          uuid.New(),
 		Name:        input.Name,

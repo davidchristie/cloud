@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 
-	customerDatabase "github.com/davidchristie/cloud/pkg/customer-database"
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/customer"
+	customerDatabase "github.com/davidchristie/cloud/pkg/customer/database"
 )
 
-type customersResponseBody struct {
-	Data []*entity.Customer `json:"data"`
+type CustomersResponseBody struct {
+	Data    []*customer.Customer `json:"data,omitempty"`
+	Message string               `json:"string,omitempty"`
 }
 
 func CustomersHandler(customerRepository customerDatabase.CustomerRepository) func(http.ResponseWriter, *http.Request) {
@@ -20,15 +21,16 @@ func CustomersHandler(customerRepository customerDatabase.CustomerRepository) fu
 
 		writer.Header().Add("Content-Type", "application/json")
 
+		response := CustomersResponseBody{}
+
 		if err != nil {
 			writer.WriteHeader(500)
-			writer.Write([]byte("{\"message\":\"" + err.Error() + "\"}"))
+			response.Message = err.Error()
 		} else {
-			response := &customersResponseBody{
-				Data: customers,
-			}
-			blob, _ := json.Marshal(response)
-			writer.Write(blob)
+			response.Data = customers
 		}
+
+		data, _ := json.Marshal(response)
+		writer.Write(data)
 	})
 }

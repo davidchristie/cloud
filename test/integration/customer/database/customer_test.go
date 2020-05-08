@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	customerDatabase "github.com/davidchristie/cloud/pkg/customer-database"
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/customer"
+	customerDatabase "github.com/davidchristie/cloud/pkg/customer/database"
 	"github.com/google/uuid"
 	"github.com/icrowley/fake"
 	"github.com/stretchr/testify/suite"
@@ -26,7 +26,7 @@ func (suite *DatabaseSuite) SetupTest() {
 }
 
 func (suite *DatabaseSuite) TestCreateCustomer() {
-	createdCustomer := &entity.Customer{
+	createdCustomer := &customer.Customer{
 		FirstName: fake.FirstName() + "+" + uuid.New().String(),
 		ID:        uuid.New(),
 		LastName:  fake.LastName() + "+" + uuid.New().String(),

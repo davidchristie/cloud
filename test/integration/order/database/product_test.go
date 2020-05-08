@@ -3,13 +3,13 @@ package database_test
 import (
 	"context"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/product"
 	"github.com/google/uuid"
 	"github.com/icrowley/fake"
 )
 
 func (suite *DatabaseSuite) TestCreateProduct() {
-	createdProduct := entity.Product{
+	createdProduct := product.Product{
 		Description: fake.Sentences() + "+" + uuid.New().String(),
 		ID:          uuid.New(),
 		Name:        fake.ProductName() + "+" + uuid.New().String(),

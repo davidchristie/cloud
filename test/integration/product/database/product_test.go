@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/product"
 	productDatabase "github.com/davidchristie/cloud/pkg/product/database"
 	"github.com/google/uuid"
 	"github.com/icrowley/fake"
@@ -26,7 +26,7 @@ func (suite *DatabaseSuite) SetupTest() {
 }
 
 func (suite *DatabaseSuite) TestCreateProduct() {
-	createdProduct := &entity.Product{
+	createdProduct := &product.Product{
 		Description: fake.Sentences() + "+" + uuid.New().String(),
 		ID:          uuid.New(),
 		Name:        fake.ProductName() + "+" + uuid.New().String(),

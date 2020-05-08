@@ -1,12 +1,11 @@
-package service
+package worker
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 
-	customerDatabase "github.com/davidchristie/cloud/pkg/customer-database"
+	customerDatabase "github.com/davidchristie/cloud/pkg/customer/database"
 	"github.com/davidchristie/cloud/pkg/kafka"
 	"github.com/davidchristie/cloud/pkg/message"
 	"github.com/kelseyhightower/envconfig"
@@ -16,7 +15,7 @@ type specificiation struct {
 	KafkaCustomerCreatedTopic string `required:"true" split_words:"true"`
 }
 
-func Start() {
+func StartService() error {
 	spec := specificiation{}
 	envconfig.MustProcess("", &spec)
 
@@ -33,7 +32,7 @@ func Start() {
 	for {
 		msg, err := reader.ReadMessage(context.Background())
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		fmt.Printf("message value: %v\n", string(msg.Value))
@@ -48,7 +47,7 @@ func Start() {
 
 		customerRepository.CreateCustomer(context.Background(), event.Data)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 	}
 }

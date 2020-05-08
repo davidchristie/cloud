@@ -3,7 +3,7 @@ package system_test
 import (
 	"time"
 
-	customerReadAPIClient "github.com/davidchristie/cloud/pkg/customer-read-api/client"
+	customerReadAPI "github.com/davidchristie/cloud/pkg/customer/read/api"
 )
 
 func (suite *SystemSuite) TestCreateCustomer() {
@@ -16,7 +16,7 @@ func (suite *SystemSuite) TestCreateCustomer() {
 	suite.Assert().Eventually(func() bool {
 		customer, err := suite.CustomerReadAPI.Customer(createdCustomer.ID)
 
-		if err != customerReadAPIClient.ErrCustomerNotFound {
+		if err != customerReadAPI.ErrCustomerNotFound {
 			suite.Assert().Nil(err)
 			suite.Assert().Equal(createdCustomer, customer)
 

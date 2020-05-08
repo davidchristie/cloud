@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/customer"
 	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,7 +12,7 @@ import (
 )
 
 type CustomerRepository interface {
-	CreateCustomer(context.Context, *entity.Customer) error
+	CreateCustomer(context.Context, *customer.Customer) error
 	HasCustomer(context.Context, uuid.UUID) (bool, error)
 }
 
@@ -33,7 +33,7 @@ func NewCustomerRepository(database *mongo.Database) CustomerRepository {
 	}
 }
 
-func (p *customerRepository) CreateCustomer(ctx context.Context, customer *entity.Customer) error {
+func (p *customerRepository) CreateCustomer(ctx context.Context, customer *customer.Customer) error {
 	document := encodeCustomer(customer)
 	insertResult, err := p.collection.InsertOne(context.Background(), document)
 	if err != nil {
@@ -60,7 +60,7 @@ func (p *customerRepository) HasCustomer(ctx context.Context, id uuid.UUID) (boo
 	}
 }
 
-func encodeCustomer(customer *entity.Customer) *map[string]interface{} {
+func encodeCustomer(customer *customer.Customer) *map[string]interface{} {
 	return &map[string]interface{}{
 		"_id": customer.ID.String(),
 	}

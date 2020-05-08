@@ -4,10 +4,10 @@ import (
 	"context"
 	"log"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/product"
 )
 
-func (c *core) Products(ctx context.Context) ([]*entity.Product, error) {
+func (c *core) Products(ctx context.Context) ([]*product.Product, error) {
 	products, err := c.ProductRepository.FindProducts(ctx)
 	if err != nil {
 		log.Println(err)

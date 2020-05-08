@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/davidchristie/cloud/pkg/entity"
+	"github.com/davidchristie/cloud/pkg/customer"
 	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,8 +13,8 @@ import (
 )
 
 type CustomerRepository interface {
-	CreateCustomer(context.Context, *entity.Customer) error
-	GetCustomers(context.Context) ([]*entity.Customer, error)
+	CreateCustomer(context.Context, *customer.Customer) error
+	GetCustomers(context.Context) ([]*customer.Customer, error)
 }
 
 type customerRepository struct {
@@ -37,7 +37,7 @@ func NewCustomerRepository(database *mongo.Database) CustomerRepository {
 	}
 }
 
-func (p *customerRepository) CreateCustomer(ctx context.Context, customer *entity.Customer) error {
+func (p *customerRepository) CreateCustomer(ctx context.Context, customer *customer.Customer) error {
 	document, err := encodeCustomer(customer)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func (p *customerRepository) CreateCustomer(ctx context.Context, customer *entit
 	return nil
 }
 
-func (p *customerRepository) GetCustomers(ctx context.Context) ([]*entity.Customer, error) {
+func (p *customerRepository) GetCustomers(ctx context.Context) ([]*customer.Customer, error) {
 	cursor, err := p.collection.Find(ctx, bson.M{})
 	defer cursor.Close(ctx)
 	if err != nil {
@@ -68,8 +68,8 @@ func (p *customerRepository) GetCustomers(ctx context.Context) ([]*entity.Custom
 	return customers, nil
 }
 
-func convertDocumentsToCustomers(documents *[]bson.Raw) ([]*entity.Customer, error) {
-	customers := make([]*entity.Customer, len(*documents))
+func convertDocumentsToCustomers(documents *[]bson.Raw) ([]*customer.Customer, error) {
+	customers := make([]*customer.Customer, len(*documents))
 	for i, document := range *documents {
 		customer, err := decodeCustomer(&document)
 		if err != nil {
@@ -80,12 +80,12 @@ func convertDocumentsToCustomers(documents *[]bson.Raw) ([]*entity.Customer, err
 	return customers, nil
 }
 
-func decodeCustomer(document *bson.Raw) (*entity.Customer, error) {
+func decodeCustomer(document *bson.Raw) (*customer.Customer, error) {
 	id, err := uuid.Parse(document.Lookup("id").StringValue())
 	if err != nil {
 		return nil, err
 	}
-	customer := entity.Customer{
+	customer := customer.Customer{
 		FirstName: document.Lookup("first_name").StringValue(),
 		ID:        id,
 		LastName:  document.Lookup("last_name").StringValue(),
@@ -93,7 +93,7 @@ func decodeCustomer(document *bson.Raw) (*entity.Customer, error) {
 	return &customer, nil
 }
 
-func encodeCustomer(customer *entity.Customer) (*map[string]interface{}, error) {
+func encodeCustomer(customer *customer.Customer) (*map[string]interface{}, error) {
 	document := make(map[string]interface{})
 	data, err := json.Marshal(customer)
 	if err != nil {

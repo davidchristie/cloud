@@ -1,4 +1,4 @@
-package entity
+package product
 
 import (
 	"github.com/google/uuid"

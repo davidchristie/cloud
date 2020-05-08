@@ -1,11 +1,11 @@
 package utility
 
 import (
-	"github.com/davidchristie/cloud/pkg/entity"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/model"
+	"github.com/davidchristie/cloud/pkg/product"
 )
 
-func ConvertProductToModel(product *entity.Product) *model.Product {
+func ConvertProductToModel(product *product.Product) *model.Product {
 	if product == nil {
 		return nil
 	}
