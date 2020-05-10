@@ -35,7 +35,9 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	LineItem() LineItemResolver
 	Mutation() MutationResolver
+	Order() OrderResolver
 	Query() QueryResolver
 }
 
@@ -80,10 +82,16 @@ type ComplexityRoot struct {
 	}
 }
 
+type LineItemResolver interface {
+	Product(ctx context.Context, obj *model.LineItem) (*model.Product, error)
+}
 type MutationResolver interface {
 	CreateCustomer(ctx context.Context, input model.CreateCustomerInput) (*model.Customer, error)
 	CreateOrder(ctx context.Context, input model.CreateOrderInput) (*model.Order, error)
 	CreateProduct(ctx context.Context, input model.CreateProductInput) (*model.Product, error)
+}
+type OrderResolver interface {
+	Customer(ctx context.Context, obj *model.Order) (*model.Customer, error)
 }
 type QueryResolver interface {
 	Customers(ctx context.Context) ([]*model.Customer, error)
@@ -579,13 +587,13 @@ func (ec *executionContext) _LineItem_product(ctx context.Context, field graphql
 		Object:   "LineItem",
 		Field:    field,
 		Args:     nil,
-		IsMethod: false,
+		IsMethod: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Product, nil
+		return ec.resolvers.LineItem().Product(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -767,13 +775,13 @@ func (ec *executionContext) _Order_customer(ctx context.Context, field graphql.C
 		Object:   "Order",
 		Field:    field,
 		Args:     nil,
-		IsMethod: false,
+		IsMethod: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Customer, nil
+		return ec.resolvers.Order().Customer(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2370,11 +2378,20 @@ func (ec *executionContext) _LineItem(ctx context.Context, sel ast.SelectionSet,
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("LineItem")
 		case "product":
-			out.Values[i] = ec._LineItem_product(ctx, field, obj)
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._LineItem_product(ctx, field, obj)
+				return res
+			})
 		case "quantity":
 			out.Values[i] = ec._LineItem_quantity(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -2440,21 +2457,30 @@ func (ec *executionContext) _Order(ctx context.Context, sel ast.SelectionSet, ob
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Order")
 		case "customer":
-			out.Values[i] = ec._Order_customer(ctx, field, obj)
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Order_customer(ctx, field, obj)
+				return res
+			})
 		case "createdAt":
 			out.Values[i] = ec._Order_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "id":
 			out.Values[i] = ec._Order_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "lineItems":
 			out.Values[i] = ec._Order_lineItems(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))

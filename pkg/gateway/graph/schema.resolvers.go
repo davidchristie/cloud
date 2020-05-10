@@ -16,6 +16,20 @@ import (
 	"github.com/google/uuid"
 )
 
+func (r *lineItemResolver) Product(ctx context.Context, obj *model.LineItem) (*model.Product, error) {
+	product, err := r.ProductReadAPI.Product(obj.ProductID)
+	switch err {
+	case nil:
+		return utility.ConvertProductToModel(product), nil
+
+	case productReadAPI.ErrProductNotFound:
+		return nil, nil
+
+	default:
+		return nil, err
+	}
+}
+
 func (r *mutationResolver) CreateCustomer(ctx context.Context, input model.CreateCustomerInput) (*model.Customer, error) {
 	correlationID := uuid.New()
 	customer, err := r.CustomerWriteAPI.CreateCustomer(input.FirstName, input.LastName, correlationID)
@@ -46,10 +60,7 @@ func (r *mutationResolver) CreateOrder(ctx context.Context, input model.CreateOr
 		CustomerID:    customerID,
 		LineItems:     lineItems,
 	})
-	// TODO: Support the rest of the order fields.
-	return &model.Order{
-		ID: createdOrder.ID.String(),
-	}, nil
+	return utility.ConvertOrderToModel(createdOrder), nil
 }
 
 func (r *mutationResolver) CreateProduct(ctx context.Context, input model.CreateProductInput) (*model.Product, error) {
@@ -59,6 +70,20 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input model.Create
 		return nil, err
 	}
 	return utility.ConvertProductToModel(product), nil
+}
+
+func (r *orderResolver) Customer(ctx context.Context, obj *model.Order) (*model.Customer, error) {
+	customer, err := r.CustomerReadAPI.Customer(obj.CustomerID)
+	switch err {
+	case nil:
+		return utility.ConvertCustomerToModel(customer), nil
+
+	case customerReadAPI.ErrCustomerNotFound:
+		return nil, nil
+
+	default:
+		return nil, err
+	}
 }
 
 func (r *queryResolver) Customers(ctx context.Context) ([]*model.Customer, error) {
@@ -80,28 +105,7 @@ func (r *queryResolver) Orders(ctx context.Context) ([]*model.Order, error) {
 	}
 	modelOrders := make([]*model.Order, len(orders))
 	for i, order := range orders {
-		customer, err := r.CustomerReadAPI.Customer(order.CustomerID)
-		if err != nil && err != customerReadAPI.ErrCustomerNotFound {
-			return nil, err
-		}
-		lineItemModels := make([]*model.LineItem, len(order.LineItems))
-		for i, lineItem := range order.LineItems {
-			// TODO: Fetch all line item products in a single request.
-			product, err := r.ProductReadAPI.Product(lineItem.ProductID)
-			if err != nil && err != productReadAPI.ErrProductNotFound {
-				return nil, err
-			}
-			lineItemModels[i] = &model.LineItem{
-				Product:  utility.ConvertProductToModel(product),
-				Quantity: lineItem.Quantity,
-			}
-		}
-		modelOrders[i] = &model.Order{
-			Customer:  utility.ConvertCustomerToModel(customer),
-			CreatedAt: order.CreatedAt.String(),
-			ID:        order.ID.String(),
-			LineItems: lineItemModels,
-		}
+		modelOrders[i] = utility.ConvertOrderToModel(order)
 	}
 	return modelOrders, nil
 }
@@ -122,11 +126,19 @@ func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) 
 	return modelProducts, nil
 }
 
+// LineItem returns generated.LineItemResolver implementation.
+func (r *Resolver) LineItem() generated.LineItemResolver { return &lineItemResolver{r} }
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
+
+// Order returns generated.OrderResolver implementation.
+func (r *Resolver) Order() generated.OrderResolver { return &orderResolver{r} }
 
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+type lineItemResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
+type orderResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
