@@ -36,7 +36,12 @@ func (suite *DatabaseSuite) TestCreateCustomer() {
 
 	suite.Assert().Nil(err)
 
-	customers, err := suite.CustomerRepository.GetCustomers(context.Background())
+	product, err := suite.CustomerRepository.FindCustomer(context.Background(), createdCustomer.ID)
+
+	suite.Assert().Nil(err)
+	suite.Assert().Equal(createdCustomer, product)
+
+	customers, err := suite.CustomerRepository.FindCustomers(context.Background())
 
 	suite.Assert().Nil(err)
 	suite.Assert().Contains(customers, createdCustomer)

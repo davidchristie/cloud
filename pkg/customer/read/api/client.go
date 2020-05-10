@@ -35,18 +35,31 @@ func NewClient() Client {
 	}
 }
 
-// TODO: Implement this properly.
 func (c *client) Customer(id uuid.UUID) (*customer.Customer, error) {
-	customers, err := c.Customers()
+	url := c.url + "/customers/" + id.String()
+	response, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
-	for _, customer := range customers {
-		if id == customer.ID {
-			return customer, nil
-		}
+	if response.StatusCode == 404 {
+		return nil, ErrCustomerNotFound
 	}
-	return nil, ErrCustomerNotFound
+	if response.Header.Get("Content-Type") != "application/json" {
+		return nil, errors.New("invalid response content type: " + response.Header.Get("Content-Type"))
+	}
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	body := handler.CustomerResponseBody{}
+	err = json.Unmarshal(data, &body)
+	if err != nil {
+		return nil, err
+	}
+	if response.StatusCode != 200 {
+		return nil, errors.New(body.Message)
+	}
+	return body.Data, nil
 }
 
 func (c *client) Customers() ([]*customer.Customer, error) {

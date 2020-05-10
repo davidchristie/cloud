@@ -3,16 +3,14 @@ package api
 import (
 	"net/http"
 
-	customerDatabase "github.com/davidchristie/cloud/pkg/customer/database"
-	"github.com/davidchristie/cloud/pkg/customer/read/api/handler"
+	"github.com/davidchristie/cloud/pkg/customer/read/api/core"
+	"github.com/davidchristie/cloud/pkg/customer/read/api/router"
 )
 
 func StartService() error {
-	db := customerDatabase.Connect()
+	c := core.NewCore()
 
-	customerRepository := customerDatabase.NewCustomerRepository(db)
+	r := router.NewRouter(c)
 
-	http.HandleFunc("/customers", handler.CustomersHandler(customerRepository))
-
-	return http.ListenAndServe(":8080", nil)
+	return http.ListenAndServe(":8080", r)
 }
