@@ -54,6 +54,17 @@ services:
       - configs/kafka.env
     image: customer-write-api
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.2
+    environment:
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+
   gateway:
     build:
       args:
@@ -67,6 +78,7 @@ services:
       - order-write-api
       - product-read-api
       - product-write-api
+      - search-api
     environment:
       - CUSTOMER_READ_API_URL=http://customer-read-api:8080
       - CUSTOMER_WRITE_API_URL=http://customer-write-api:8080
@@ -74,6 +86,7 @@ services:
       - ORDER_WRITE_API_URL=http://order-write-api:8080
       - PRODUCT_READ_API_URL=http://product-read-api:8080
       - PRODUCT_WRITE_API_URL=http://product-write-api:8080
+      - SEARCH_API_URL=http://search-api:8080
     image: gateway
     ports:
       - 8080:8080
@@ -198,6 +211,34 @@ services:
       - configs/kafka.env
     image: product-write-api
 
+  search-api:
+    build:
+      args:
+        service: search-api
+      context: build/service
+    depends_on:
+      - elasticsearch
+    env_file:
+      - configs/elasticsearch.env
+    image: search-api
+    restart: on-failure
+
+  search-worker:
+    build:
+      args:
+        service: search-worker
+      context: build/service
+    depends_on:
+      - elasticsearch
+      - kafka
+    env_file:
+      - configs/elasticsearch.env
+      - configs/kafka.env
+    environment:
+      - KAFKA_GROUP_ID=search-worker
+    image: search-worker
+    restart: on-failure
+
   zookeeper:
     image: bitnami/zookeeper:3
     ports:
@@ -208,6 +249,9 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
 
 volumes:
+  elasticsearch-data:
+    driver: local
+
   kafka-data:
     driver: local
 

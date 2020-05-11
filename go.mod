@@ -5,6 +5,8 @@ go 1.13
 require (
 	github.com/99designs/gqlgen v0.11.3
 	github.com/corpix/uarand v0.1.1 // indirect
+	github.com/elastic/go-elasticsearch/v8 v8.0.0-20200508105138-fc4f6f3c7fc3
+	github.com/google/go-querystring v1.0.0
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.4

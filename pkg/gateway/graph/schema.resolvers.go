@@ -110,18 +110,22 @@ func (r *queryResolver) Orders(ctx context.Context) ([]*model.Order, error) {
 	return modelOrders, nil
 }
 
-func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) {
-	products, err := r.ProductReadAPI.Products()
+func (r *queryResolver) Products(ctx context.Context, query *string) ([]*model.Product, error) {
+	q := ""
+	if query != nil {
+		q = *query
+	}
+	results, err := r.SearchAPI.Products(q)
 	if err != nil {
 		return nil, err
 	}
-	modelProducts := make([]*model.Product, len(products))
-	for i, product := range products {
-		modelProducts[i] = &model.Product{
-			Description: product.Description,
-			ID:          product.ID.String(),
-			Name:        product.Name,
+	modelProducts := make([]*model.Product, len(results))
+	for i, productID := range results {
+		product, err := r.ProductReadAPI.Product(productID)
+		if err != nil {
+			return nil, err
 		}
+		modelProducts[i] = utility.ConvertProductToModel(product)
 	}
 	return modelProducts, nil
 }

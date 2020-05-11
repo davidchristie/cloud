@@ -11,6 +11,7 @@ import (
 	orderWriteAPI "github.com/davidchristie/cloud/pkg/order/write/api"
 	productReadAPI "github.com/davidchristie/cloud/pkg/product/read/api"
 	productWriteAPI "github.com/davidchristie/cloud/pkg/product/write/api"
+	searchAPI "github.com/davidchristie/cloud/pkg/search/api"
 )
 
 type Resolver struct {
@@ -20,6 +21,7 @@ type Resolver struct {
 	OrderWriteAPI    orderWriteAPI.OrderWriteAPIClient
 	ProductReadAPI   productReadAPI.Client
 	ProductWriteAPI  productWriteAPI.Client
+	SearchAPI        searchAPI.Client
 }
 
 func NewResolver() *Resolver {
@@ -30,5 +32,6 @@ func NewResolver() *Resolver {
 		OrderWriteAPI:    orderWriteAPI.NewClient(),
 		ProductReadAPI:   productReadAPI.NewClient(),
 		ProductWriteAPI:  productWriteAPI.NewClient(),
+		SearchAPI:        searchAPI.NewClient(),
 	}
 }
