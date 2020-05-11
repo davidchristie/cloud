@@ -45,7 +45,7 @@ type Product {
 type Query {
   customers: [Customer!]!
   orders: [Order!]!
-  products: [Product!]!
+  products(query: String): [Product!]!
 }
 
 type Mutation {

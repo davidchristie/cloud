@@ -78,7 +78,7 @@ type ComplexityRoot struct {
 	Query struct {
 		Customers func(childComplexity int) int
 		Orders    func(childComplexity int) int
-		Products  func(childComplexity int) int
+		Products  func(childComplexity int, query *string) int
 	}
 }
 
@@ -96,7 +96,7 @@ type OrderResolver interface {
 type QueryResolver interface {
 	Customers(ctx context.Context) ([]*model.Customer, error)
 	Orders(ctx context.Context) ([]*model.Order, error)
-	Products(ctx context.Context) ([]*model.Product, error)
+	Products(ctx context.Context, query *string) ([]*model.Product, error)
 }
 
 type executableSchema struct {
@@ -253,7 +253,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Products(childComplexity), true
+		args, err := ec.field_Query_products_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Products(childComplexity, args["query"].(*string)), true
 
 	}
 	return 0, false
@@ -366,7 +371,7 @@ type Product {
 type Query {
   customers: [Customer!]!
   orders: [Order!]!
-  products: [Product!]!
+  products(query: String): [Product!]!
 }
 
 type Mutation {
@@ -435,6 +440,20 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_products_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["query"]; ok {
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["query"] = arg0
 	return args, nil
 }
 
@@ -1082,9 +1101,16 @@ func (ec *executionContext) _Query_products(ctx context.Context, field graphql.C
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_products_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Products(rctx)
+		return ec.resolvers.Query().Products(rctx, args["query"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

@@ -16,7 +16,7 @@ type Client interface {
 	CreateProduct(*CreateProductInput) (*product.Product, error)
 	Customers() ([]*customer.Customer, error)
 	Orders() ([]*order.Order, error)
-	Products() ([]*product.Product, error)
+	Products(query *string) ([]*product.Product, error)
 }
 
 type client struct {
@@ -185,17 +185,18 @@ func (c *client) Orders() ([]*order.Order, error) {
 	return response.Orders, nil
 }
 
-func (c *client) Products() ([]*product.Product, error) {
+func (c *client) Products(query *string) ([]*product.Product, error) {
 	ctx := context.Background()
 	request := graphql.NewRequest(`
-		query {
-			products {
+		query ($query: String) {
+			products (query: $query) {
 				description
 				id
 				name
 			}
 		}
 	`)
+	request.Var("query", query)
 	response := productsResponse{}
 	if err := c.GraphQL.Run(ctx, request, &response); err != nil {
 		return nil, err

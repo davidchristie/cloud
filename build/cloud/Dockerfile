@@ -1,4 +1,4 @@
-FROM golang AS builder
+FROM golang
 
 WORKDIR /go/src/github.com/davidchristie/cloud
 
@@ -12,4 +12,4 @@ COPY pkg ./pkg
 
 RUN mkdir /cloud
 
-RUN CGO_ENABLED=0 go build -o /cloud ./...
+RUN CGO_ENABLED=0 go build -o /cloud -v ./...
