@@ -14,7 +14,7 @@ import (
 type ProductRepository interface {
 	CreateProduct(context.Context, *product.Product) error
 	FindProduct(context.Context, uuid.UUID) (*product.Product, error)
-	FindProducts(context.Context) ([]*product.Product, error)
+	FindProducts(context.Context, []uuid.UUID) (map[uuid.UUID]*product.Product, error)
 }
 
 type productRepository struct {
@@ -66,14 +66,14 @@ func (p *productRepository) FindProduct(ctx context.Context, id uuid.UUID) (*pro
 	return &product, nil
 }
 
-func (p *productRepository) FindProducts(ctx context.Context) ([]*product.Product, error) {
-	cursor, err := p.collection.Find(ctx, bson.M{})
+func (p *productRepository) FindProducts(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID]*product.Product, error) {
+	cursor, err := p.collection.Find(ctx, bson.M{"id": bson.M{"$in": ids}})
 	defer cursor.Close(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var results []*product.Product
+	results := map[uuid.UUID]*product.Product{}
 
 	for cursor.Next(ctx) {
 		product := &product.Product{}
@@ -82,7 +82,7 @@ func (p *productRepository) FindProducts(ctx context.Context) ([]*product.Produc
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, product)
+		results[product.ID] = product
 	}
 
 	return results, nil

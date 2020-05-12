@@ -7,27 +7,17 @@ import (
 	"context"
 
 	customerReadAPI "github.com/davidchristie/cloud/pkg/customer/read/api"
+	"github.com/davidchristie/cloud/pkg/gateway/graph/convert"
+	"github.com/davidchristie/cloud/pkg/gateway/graph/dataloader"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/generated"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/model"
-	"github.com/davidchristie/cloud/pkg/gateway/graph/utility"
 	"github.com/davidchristie/cloud/pkg/order"
 	"github.com/davidchristie/cloud/pkg/order/write/api"
-	productReadAPI "github.com/davidchristie/cloud/pkg/product/read/api"
 	"github.com/google/uuid"
 )
 
 func (r *lineItemResolver) Product(ctx context.Context, obj *model.LineItem) (*model.Product, error) {
-	product, err := r.ProductReadAPI.Product(obj.ProductID)
-	switch err {
-	case nil:
-		return utility.ConvertProductToModel(product), nil
-
-	case productReadAPI.ErrProductNotFound:
-		return nil, nil
-
-	default:
-		return nil, err
-	}
+	return dataloader.For(ctx).Product.Load(obj.ProductID)
 }
 
 func (r *mutationResolver) CreateCustomer(ctx context.Context, input model.CreateCustomerInput) (*model.Customer, error) {
@@ -36,7 +26,7 @@ func (r *mutationResolver) CreateCustomer(ctx context.Context, input model.Creat
 	if err != nil {
 		return nil, err
 	}
-	return utility.ConvertCustomerToModel(customer), nil
+	return convert.Customer(customer), nil
 }
 
 func (r *mutationResolver) CreateOrder(ctx context.Context, input model.CreateOrderInput) (*model.Order, error) {
@@ -60,7 +50,7 @@ func (r *mutationResolver) CreateOrder(ctx context.Context, input model.CreateOr
 		CustomerID:    customerID,
 		LineItems:     lineItems,
 	})
-	return utility.ConvertOrderToModel(createdOrder), nil
+	return convert.Order(createdOrder), nil
 }
 
 func (r *mutationResolver) CreateProduct(ctx context.Context, input model.CreateProductInput) (*model.Product, error) {
@@ -69,14 +59,14 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input model.Create
 	if err != nil {
 		return nil, err
 	}
-	return utility.ConvertProductToModel(product), nil
+	return convert.Product(product), nil
 }
 
 func (r *orderResolver) Customer(ctx context.Context, obj *model.Order) (*model.Customer, error) {
 	customer, err := r.CustomerReadAPI.Customer(obj.CustomerID)
 	switch err {
 	case nil:
-		return utility.ConvertCustomerToModel(customer), nil
+		return convert.Customer(customer), nil
 
 	case customerReadAPI.ErrCustomerNotFound:
 		return nil, nil
@@ -89,11 +79,11 @@ func (r *orderResolver) Customer(ctx context.Context, obj *model.Order) (*model.
 func (r *queryResolver) Customers(ctx context.Context) ([]*model.Customer, error) {
 	customers, err := r.CustomerReadAPI.Customers()
 	if err != nil {
-		return nil, err
+		return []*model.Customer{}, err
 	}
 	modelCustomers := make([]*model.Customer, len(customers))
 	for i, customer := range customers {
-		modelCustomers[i] = utility.ConvertCustomerToModel(customer)
+		modelCustomers[i] = convert.Customer(customer)
 	}
 	return modelCustomers, nil
 }
@@ -101,11 +91,11 @@ func (r *queryResolver) Customers(ctx context.Context) ([]*model.Customer, error
 func (r *queryResolver) Orders(ctx context.Context) ([]*model.Order, error) {
 	orders, err := r.OrderReadAPI.Orders()
 	if err != nil {
-		return nil, err
+		return []*model.Order{}, err
 	}
 	modelOrders := make([]*model.Order, len(orders))
 	for i, order := range orders {
-		modelOrders[i] = utility.ConvertOrderToModel(order)
+		modelOrders[i] = convert.Order(order)
 	}
 	return modelOrders, nil
 }
@@ -117,17 +107,16 @@ func (r *queryResolver) Products(ctx context.Context, query *string) ([]*model.P
 	}
 	results, err := r.SearchAPI.Products(q)
 	if err != nil {
-		return nil, err
+		return []*model.Product{}, err
 	}
-	modelProducts := make([]*model.Product, len(results))
-	for i, productID := range results {
-		product, err := r.ProductReadAPI.Product(productID)
+	products, errs := dataloader.For(ctx).Product.LoadAll(results)
+	for _, err := range errs {
 		if err != nil {
-			return nil, err
+			return []*model.Product{}, err
 		}
-		modelProducts[i] = utility.ConvertProductToModel(product)
 	}
-	return modelProducts, nil
+
+	return products, nil
 }
 
 // LineItem returns generated.LineItemResolver implementation.

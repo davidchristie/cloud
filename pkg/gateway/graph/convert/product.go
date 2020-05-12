@@ -1,11 +1,11 @@
-package utility
+package convert
 
 import (
 	"github.com/davidchristie/cloud/pkg/gateway/graph/model"
 	"github.com/davidchristie/cloud/pkg/product"
 )
 
-func ConvertProductToModel(product *product.Product) *model.Product {
+func Product(product *product.Product) *model.Product {
 	if product == nil {
 		return nil
 	}

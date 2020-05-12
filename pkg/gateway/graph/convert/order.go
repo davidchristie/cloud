@@ -1,11 +1,11 @@
-package utility
+package convert
 
 import (
 	"github.com/davidchristie/cloud/pkg/gateway/graph/model"
 	"github.com/davidchristie/cloud/pkg/order"
 )
 
-func ConvertOrderToModel(order *order.Order) *model.Order {
+func Order(order *order.Order) *model.Order {
 	if order == nil {
 		return nil
 	}
