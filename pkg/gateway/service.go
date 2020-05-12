@@ -6,10 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/davidchristie/cloud/pkg/gateway/graph"
-	"github.com/davidchristie/cloud/pkg/gateway/graph/generated"
+	"github.com/davidchristie/cloud/pkg/gateway/router"
+	productReadAPI "github.com/davidchristie/cloud/pkg/product/read/api"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -20,12 +18,7 @@ type serviceSpecification struct {
 func StartService() error {
 	spec := serviceSpecification{}
 	envconfig.MustProcess("", &spec)
-
-	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: graph.NewResolver()}))
-
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", server)
-
+	r := router.NewRouter(productReadAPI.NewClient())
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", spec.Port)
-	return http.ListenAndServe(":"+spec.Port, nil)
+	return http.ListenAndServe(":"+spec.Port, r)
 }

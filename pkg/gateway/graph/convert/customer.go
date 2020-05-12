@@ -1,11 +1,11 @@
-package utility
+package convert
 
 import (
 	"github.com/davidchristie/cloud/pkg/customer"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/model"
 )
 
-func ConvertCustomerToModel(customer *customer.Customer) *model.Customer {
+func Customer(customer *customer.Customer) *model.Customer {
 	if customer == nil {
 		return nil
 	}

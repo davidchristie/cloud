@@ -5,13 +5,18 @@ import (
 	"log"
 
 	"github.com/davidchristie/cloud/pkg/product"
+	"github.com/google/uuid"
 )
 
-func (c *core) Products(ctx context.Context) ([]*product.Product, error) {
-	products, err := c.ProductRepository.FindProducts(ctx)
-	if err != nil {
-		log.Println(err)
-		return nil, err
+func (c *core) Products(ctx context.Context, ids []string) (map[uuid.UUID]*product.Product, error) {
+	productIDs := []uuid.UUID{}
+	for _, id := range ids {
+		productID, err := uuid.Parse(id)
+		if err == nil {
+			productIDs = append(productIDs, productID)
+		} else {
+			log.Println(err)
+		}
 	}
-	return products, nil
+	return c.ProductRepository.FindProducts(ctx, productIDs)
 }

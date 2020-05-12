@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/davidchristie/cloud/pkg/product"
 	"github.com/davidchristie/cloud/pkg/product/read/api/handler"
@@ -15,7 +16,7 @@ import (
 
 type Client interface {
 	Product(uuid.UUID) (*product.Product, error)
-	Products() ([]*product.Product, error)
+	Products([]uuid.UUID) (map[uuid.UUID]*product.Product, error)
 }
 
 type client struct {
@@ -63,8 +64,8 @@ func (c *client) Product(id uuid.UUID) (*product.Product, error) {
 	return body.Data, nil
 }
 
-func (c *client) Products() ([]*product.Product, error) {
-	url := c.url + "/products"
+func (c *client) Products(ids []uuid.UUID) (map[uuid.UUID]*product.Product, error) {
+	url := c.url + "/products?ids=" + joinIDs(ids)
 	response, err := http.Get(url)
 	if err != nil {
 		log.Println(err)
@@ -96,4 +97,12 @@ func (c *client) Products() ([]*product.Product, error) {
 		return nil, err
 	}
 	return body.Data, nil
+}
+
+func joinIDs(ids []uuid.UUID) string {
+	s := make([]string, len(ids))
+	for i, id := range ids {
+		s[i] = id.String()
+	}
+	return strings.Join(s, ",")
 }
