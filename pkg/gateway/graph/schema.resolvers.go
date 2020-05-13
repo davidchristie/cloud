@@ -79,7 +79,7 @@ func (r *orderResolver) Customer(ctx context.Context, obj *model.Order) (*model.
 func (r *queryResolver) Customers(ctx context.Context) ([]*model.Customer, error) {
 	customers, err := r.CustomerReadAPI.Customers()
 	if err != nil {
-		return []*model.Customer{}, err
+		return nil, err
 	}
 	modelCustomers := make([]*model.Customer, len(customers))
 	for i, customer := range customers {
@@ -91,7 +91,7 @@ func (r *queryResolver) Customers(ctx context.Context) ([]*model.Customer, error
 func (r *queryResolver) Orders(ctx context.Context) ([]*model.Order, error) {
 	orders, err := r.OrderReadAPI.Orders()
 	if err != nil {
-		return []*model.Order{}, err
+		return nil, err
 	}
 	modelOrders := make([]*model.Order, len(orders))
 	for i, order := range orders {
@@ -107,16 +107,28 @@ func (r *queryResolver) Products(ctx context.Context, query *string) ([]*model.P
 	}
 	results, err := r.SearchAPI.Products(q)
 	if err != nil {
-		return []*model.Product{}, err
+		return nil, err
 	}
 	products, errs := dataloader.For(ctx).Product.LoadAll(results)
+
 	for _, err := range errs {
 		if err != nil {
-			return []*model.Product{}, err
+			return nil, err
 		}
 	}
 
-	return products, nil
+	// Filter out any nil elements. A product will be nil if it has been indexed
+	// in Elasticsearch but isn't found in the product database.
+	//
+	// FIXME: Guarantee all products indexed in Elasticsearch exist in the product database.
+	nonNilProducts := make([]*model.Product, 0)
+	for _, product := range products {
+		if product != nil {
+			nonNilProducts = append(nonNilProducts, product)
+		}
+	}
+
+	return nonNilProducts, nil
 }
 
 // LineItem returns generated.LineItemResolver implementation.
