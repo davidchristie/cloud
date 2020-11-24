@@ -1,12 +1,16 @@
 import { MockedProvider } from "@apollo/client/testing";
 import { screen, render } from "@testing-library/react";
+import React from "react";
+import { MemoryRouter } from "react-router-dom";
 import HomePage from ".";
 
 function renderHomePage() {
   render(
-    <MockedProvider mocks={[]}>
-      <HomePage />
-    </MockedProvider>
+    <MemoryRouter>
+      <MockedProvider mocks={[]}>
+        <HomePage />
+      </MockedProvider>
+    </MemoryRouter>
   );
 }
 
