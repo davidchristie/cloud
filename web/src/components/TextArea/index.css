@@ -1,0 +1,8 @@
+.TextArea {
+  display: flex;
+  flex-direction: column;
+}
+
+.TextArea textarea {
+  resize: none;
+}

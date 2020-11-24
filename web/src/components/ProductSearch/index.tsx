@@ -1,5 +1,13 @@
 import { gql, useQuery } from "@apollo/client";
-import { useState } from "react";
+import React, { useState } from "react";
+
+interface ProductSearchQuery {
+  products: Array<{
+    description: string;
+    id: string;
+    name: string;
+  }>;
+}
 
 const PRODUCT_SEARCH_QUERY = gql`
   query ProductSearch($query: String!) {
@@ -13,13 +21,18 @@ const PRODUCT_SEARCH_QUERY = gql`
 
 export default function ProductSearch() {
   const [query, setQuery] = useState("");
-  const { data, loading, error } = useQuery(PRODUCT_SEARCH_QUERY, {
-    variables: {
-      query,
-    },
-  });
-  const handleQueryChange = (event) => {
-    setQuery(event.target.value);
+  const { data, loading, error } = useQuery<ProductSearchQuery>(
+    PRODUCT_SEARCH_QUERY,
+    {
+      variables: {
+        query,
+      },
+    }
+  );
+  const handleQueryChange: React.ChangeEventHandler = (event) => {
+    if (event.target instanceof HTMLInputElement) {
+      setQuery(event.target.value);
+    }
   };
   return (
     <div className="ProductSearch" data-testid="ProductSearch">
