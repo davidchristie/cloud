@@ -100,6 +100,18 @@ func (r *queryResolver) Orders(ctx context.Context) ([]*model.Order, error) {
 	return modelOrders, nil
 }
 
+func (r *queryResolver) Product(ctx context.Context, id string) (*model.Product, error) {
+	productID, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	product, err := r.ProductReadAPI.Product(productID)
+	if err != nil {
+		return nil, err
+	}
+	return convert.Product(product), nil
+}
+
 func (r *queryResolver) Products(ctx context.Context, query *string) ([]*model.Product, error) {
 	q := ""
 	if query != nil {

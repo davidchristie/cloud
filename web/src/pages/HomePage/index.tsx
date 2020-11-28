@@ -1,15 +1,10 @@
 import React from "react";
-import CreateProductButton from "../../components/CreateProductButton";
-import ProductSearch from "../../components/ProductSearch";
+import Page from "../../components/Page";
 
-function HomePage() {
+export default function HomePage() {
   return (
-    <div className="HomePage" data-testid="HomePage">
+    <Page>
       <h1>Home</h1>
-      <CreateProductButton />
-      <ProductSearch />
-    </div>
+    </Page>
   );
 }
-
-export default HomePage;
