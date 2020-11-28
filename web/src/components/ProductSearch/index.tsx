@@ -1,5 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { getProductDetailPageUrl } from "../../utilities";
 
 interface ProductSearchQuery {
   products: Array<{
@@ -43,7 +45,9 @@ export default function ProductSearch() {
       {query &&
         data &&
         data.products.map((product) => (
-          <div key={product.id}>{product.name}</div>
+          <div key={product.id}>
+            <Link to={getProductDetailPageUrl(product.id)}>{product.name}</Link>
+          </div>
         ))}
       {query && !loading && data && data.products.length === 0 && (
         <div>No results</div>

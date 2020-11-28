@@ -16,12 +16,8 @@ function renderHomePage() {
 
 it("renders 'Home' page heading", () => {
   renderHomePage();
-  const pageHeading = screen.getByText(/home/i);
+  const pageHeading = screen.getByText(/home/i, {
+    selector: 'h1',
+  });
   expect(pageHeading).toBeInTheDocument();
-});
-
-it("renders product search", () => {
-  renderHomePage();
-  const productSearch = screen.getByTestId("ProductSearch");
-  expect(productSearch).toBeInTheDocument();
 });
