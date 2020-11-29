@@ -4,11 +4,8 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/davidchristie/cloud/pkg/customer"
 	"github.com/davidchristie/cloud/pkg/gateway"
 	"github.com/davidchristie/cloud/pkg/kafka"
-	"github.com/davidchristie/cloud/pkg/order"
-	"github.com/davidchristie/cloud/pkg/product"
 	"github.com/icrowley/fake"
 	"github.com/stretchr/testify/suite"
 )
@@ -23,14 +20,14 @@ func (suite *AcceptanceSuite) SetupSuite() {
 	kafka.WaitUntilHealthy()
 }
 
-func (suite *AcceptanceSuite) CreateCustomer() (*customer.Customer, error) {
+func (suite *AcceptanceSuite) CreateCustomer() (*gateway.Customer, error) {
 	return suite.Gateway.CreateCustomer(&gateway.CreateCustomerInput{
 		FirstName: fake.FirstName(),
 		LastName:  fake.LastName(),
 	})
 }
 
-func (suite *AcceptanceSuite) CreateOrder() (*order.Order, error) {
+func (suite *AcceptanceSuite) CreateOrder() (*gateway.Order, error) {
 	customer, err := suite.CreateCustomer()
 	if err != nil {
 		return nil, err
@@ -53,7 +50,7 @@ func (suite *AcceptanceSuite) CreateOrder() (*order.Order, error) {
 	})
 }
 
-func (suite *AcceptanceSuite) CreateProduct() (*product.Product, error) {
+func (suite *AcceptanceSuite) CreateProduct() (*gateway.Product, error) {
 	return suite.Gateway.CreateProduct(&gateway.CreateProductInput{
 		Description: fake.Sentences(),
 		Name:        fake.ProductName(),

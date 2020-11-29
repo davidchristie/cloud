@@ -16,7 +16,7 @@ type healthcheckSpecification struct {
 }
 
 func WaitUntilHealthy() {
-	log.Println("waiting for Kafka brokers to become healthy")
+	log.Println("waiting for kafka brokers to become healthy")
 
 	spec := healthcheckSpecification{}
 	envconfig.MustProcess("KAFKA_HEALTHCHECK", &spec)
