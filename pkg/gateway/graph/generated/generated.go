@@ -76,6 +76,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Customer  func(childComplexity int, id string) int
 		Customers func(childComplexity int, query *string) int
 		Orders    func(childComplexity int) int
 		Product   func(childComplexity int, id string) int
@@ -95,6 +96,7 @@ type OrderResolver interface {
 	Customer(ctx context.Context, obj *model.Order) (*model.Customer, error)
 }
 type QueryResolver interface {
+	Customer(ctx context.Context, id string) (*model.Customer, error)
 	Customers(ctx context.Context, query *string) ([]*model.Customer, error)
 	Orders(ctx context.Context) ([]*model.Order, error)
 	Product(ctx context.Context, id string) (*model.Product, error)
@@ -235,6 +237,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Product.Name(childComplexity), true
+
+	case "Query.customer":
+		if e.complexity.Query.Customer == nil {
+			break
+		}
+
+		args, err := ec.field_Query_customer_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Customer(childComplexity, args["id"].(string)), true
 
 	case "Query.customers":
 		if e.complexity.Query.Customers == nil {
@@ -388,6 +402,7 @@ type Product {
 }
 
 type Query {
+  customer(id: String!): Customer!
   customers(query: String): [Customer!]!
   orders: [Order!]!
   product(id: String!): Product!
@@ -460,6 +475,20 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_customer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -1064,6 +1093,47 @@ func (ec *executionContext) _Product_name(ctx context.Context, field graphql.Col
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_customer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_customer_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Customer(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Customer)
+	fc.Result = res
+	return ec.marshalNCustomer2ᚖgithubᚗcomᚋdavidchristieᚋcloudᚋpkgᚋgatewayᚋgraphᚋmodelᚐCustomer(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_customers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2667,6 +2737,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "customer":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_customer(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "customers":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {

@@ -1,10 +1,11 @@
 import React from "react";
 import Page from "../../components/Page";
+import PageHeading from "../../components/PageHeading";
 
 export default function NotFoundPage() {
   return (
     <Page>
-      <h1>Not Found</h1>
+      <PageHeading>Not Found</PageHeading>
     </Page>
   );
 }

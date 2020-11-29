@@ -2,6 +2,7 @@ import { gql, useQuery } from '@apollo/client';
 import React from 'react'
 import { useParams } from "react-router-dom";
 import Page from '../../components/Page';
+import PageHeading from "../../components/PageHeading";
 import NotFoundPage from '../NotFoundPage';
 
 interface Params {
@@ -43,7 +44,7 @@ export default function ProductDetailPage() {
       )}
       {data && (
         <>
-          <h1>{data.product.name}</h1>
+          <PageHeading>{data.product.name}</PageHeading>
           <p>{data.product.description}</p>
         </>
       )}

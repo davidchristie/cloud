@@ -1,12 +1,13 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
 import CreateProductPage from "./pages/CreateProductPage";
+import CustomerDetailPage from "./pages/CustomerDetailPage";
 import CustomerListPage from "./pages/CustomerListPage";
 import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductListPage from "./pages/ProductListPage";
-import { getCreateProductPageUrl, getCustomerListPageUrl, getHomePageUrl, getProductDetailPageUrl, getProductListPageUrl } from "./utilities";
+import { getCreateProductPageUrl, getCustomerDetailPageUrl, getCustomerListPageUrl, getHomePageUrl, getProductDetailPageUrl, getProductListPageUrl } from "./utilities";
 
 export default function Routes() {
   return (
@@ -16,6 +17,9 @@ export default function Routes() {
       </Route>
       <Route exact path={getCustomerListPageUrl()}>
         <CustomerListPage />
+      </Route>
+      <Route exact path={getCustomerDetailPageUrl(':customerId')}>
+        <CustomerDetailPage />
       </Route>
       <Route exact path={getCreateProductPageUrl()}>
         <CreateProductPage />

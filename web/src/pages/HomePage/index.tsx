@@ -1,10 +1,11 @@
 import React from "react";
 import Page from "../../components/Page";
+import PageHeading from "../../components/PageHeading";
 
 export default function HomePage() {
   return (
     <Page>
-      <h1>Home</h1>
+      <PageHeading>Home</PageHeading>
     </Page>
   );
 }
