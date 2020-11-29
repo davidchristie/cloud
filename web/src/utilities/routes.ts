@@ -1,3 +1,7 @@
+export function getCreateCustomerPageUrl() {
+  return '/create/customer'
+}
+
 export function getCreateProductPageUrl() {
   return '/create/product'
 }

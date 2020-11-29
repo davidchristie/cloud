@@ -38,7 +38,6 @@ export default function ProductSearch() {
   };
   return (
     <div className="ProductSearch" data-testid="ProductSearch">
-      <h2>Product Search</h2>
       <input onChange={handleQueryChange} value={query} />
       {error && <div>Error</div>}
       {loading && <div>Loading...</div>}
