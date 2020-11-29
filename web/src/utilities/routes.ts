@@ -2,6 +2,10 @@ export function getCreateProductPageUrl() {
   return '/create/product'
 }
 
+export function getCustomerListPageUrl() {
+  return '/customers'
+}
+
 export function getHomePageUrl() {
   return '/'
 }

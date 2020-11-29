@@ -42,14 +42,12 @@ export default function ProductSearch() {
       <input onChange={handleQueryChange} value={query} />
       {error && <div>Error</div>}
       {loading && <div>Loading...</div>}
-      {query &&
-        data &&
-        data.products.map((product) => (
+      {data && data.products.map((product) => (
           <div key={product.id}>
             <Link to={getProductDetailPageUrl(product.id)}>{product.name}</Link>
           </div>
         ))}
-      {query && !loading && data && data.products.length === 0 && (
+      {!loading && data && data.products.length === 0 && (
         <div>No results</div>
       )}
     </div>
