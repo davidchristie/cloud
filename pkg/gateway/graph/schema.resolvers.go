@@ -76,16 +76,35 @@ func (r *orderResolver) Customer(ctx context.Context, obj *model.Order) (*model.
 	}
 }
 
-func (r *queryResolver) Customers(ctx context.Context) ([]*model.Customer, error) {
-	customers, err := r.CustomerReadAPI.Customers()
+func (r *queryResolver) Customers(ctx context.Context, query *string) ([]*model.Customer, error) {
+	q := ""
+	if query != nil {
+		q = *query
+	}
+	results, err := r.SearchAPI.Customers(q)
 	if err != nil {
 		return nil, err
 	}
-	modelCustomers := make([]*model.Customer, len(customers))
-	for i, customer := range customers {
-		modelCustomers[i] = convert.Customer(customer)
+	customers, errs := dataloader.For(ctx).Customer.LoadAll(results)
+
+	for _, err := range errs {
+		if err != nil {
+			return nil, err
+		}
 	}
-	return modelCustomers, nil
+
+	// Filter out any nil elements. A customer will be nil if it has been indexed
+	// in Elasticsearch but isn't found in the customer database.
+	//
+	// FIXME: Guarantee all customers indexed in Elasticsearch exist in the customer database.
+	nonNilCustomers := make([]*model.Customer, 0)
+	for _, customer := range customers {
+		if customer != nil {
+			nonNilCustomers = append(nonNilCustomers, customer)
+		}
+	}
+
+	return nonNilCustomers, nil
 }
 
 func (r *queryResolver) Orders(ctx context.Context) ([]*model.Order, error) {

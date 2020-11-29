@@ -12,6 +12,7 @@ import (
 
 func NewRouter(c core.Core) http.Handler {
 	r := mux.NewRouter()
+	r.HandleFunc("/customers", handler.CustomersHandler(c)).Methods("GET")
 	r.HandleFunc("/products", handler.ProductsHandler(c)).Methods("GET")
 	return handlers.LoggingHandler(os.Stdout, r)
 }

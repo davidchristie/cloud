@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"strings"
 
 	"github.com/davidchristie/cloud/pkg/customer"
 	"github.com/davidchristie/cloud/pkg/customer/read/api/handler"
@@ -14,7 +16,7 @@ import (
 
 type Client interface {
 	Customer(uuid.UUID) (*customer.Customer, error)
-	Customers() ([]*customer.Customer, error)
+	Customers([]uuid.UUID) (map[uuid.UUID]*customer.Customer, error)
 }
 
 type client struct {
@@ -62,26 +64,45 @@ func (c *client) Customer(id uuid.UUID) (*customer.Customer, error) {
 	return body.Data, nil
 }
 
-func (c *client) Customers() ([]*customer.Customer, error) {
-	url := c.url + "/customers"
+func (c *client) Customers(ids []uuid.UUID) (map[uuid.UUID]*customer.Customer, error) {
+	url := c.url + "/customers?ids=" + joinIDs(ids)
 	response, err := http.Get(url)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 	if response.Header.Get("Content-Type") != "application/json" {
-		return nil, errors.New("invalid response content type: " + response.Header.Get("Content-Type"))
+		err = errors.New("invalid response content type: " + response.Header.Get("Content-Type"))
+		log.Println(err)
+		return nil, err
 	}
-	data, err := ioutil.ReadAll(response.Body)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 	body := handler.CustomersResponseBody{}
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 	err = json.Unmarshal(data, &body)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 	if response.StatusCode != 200 {
-		return nil, errors.New(body.Message)
+		err = errors.New(body.Message)
+		log.Println(err)
+		return nil, err
 	}
 	return body.Data, nil
+}
+
+func joinIDs(ids []uuid.UUID) string {
+	s := make([]string, len(ids))
+	for i, id := range ids {
+		s[i] = id.String()
+	}
+	return strings.Join(s, ",")
 }

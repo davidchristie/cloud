@@ -10,6 +10,7 @@ import (
 )
 
 type Core interface {
+	Customers(ctx context.Context, query string) ([]uuid.UUID, error)
 	Products(ctx context.Context, query string) ([]uuid.UUID, error)
 }
 
@@ -19,7 +20,8 @@ type core struct {
 }
 
 type specification struct {
-	ElasticsearchProductIndex string `required:"true" split_words:"true"`
+	ElasticsearchCustomerIndex string `required:"true" split_words:"true"`
+	ElasticsearchProductIndex  string `required:"true" split_words:"true"`
 }
 
 func NewCore() Core {

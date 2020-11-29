@@ -14,6 +14,7 @@ import (
 )
 
 type Client interface {
+	Customers(query string) ([]uuid.UUID, error)
 	Products(query string) ([]uuid.UUID, error)
 }
 
@@ -25,11 +26,13 @@ type clientSpecification struct {
 	URL string `required:"true"`
 }
 
-type productsOptions struct {
+type customersOptions struct {
 	Query string `url:"q"`
 }
 
-var ErrProductNotFound = errors.New("product not found")
+type productsOptions struct {
+	Query string `url:"q"`
+}
 
 func NewClient() Client {
 	spec := clientSpecification{}
@@ -37,6 +40,45 @@ func NewClient() Client {
 	return &client{
 		url: spec.URL,
 	}
+}
+
+func (c *client) Customers(searchQuery string) ([]uuid.UUID, error) {
+	opt := customersOptions{
+		Query: searchQuery,
+	}
+	v, _ := query.Values(&opt)
+	url := c.url + "/customers?" + v.Encode()
+	response, err := http.Get(url)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	if response.Header.Get("Content-Type") != "application/json" {
+		err = errors.New("invalid response content type: " + response.Header.Get("Content-Type"))
+		log.Println(err)
+		return nil, err
+	}
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	body := handler.CustomersResponseBody{}
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	err = json.Unmarshal(data, &body)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	if response.StatusCode != 200 {
+		err = errors.New(body.Message)
+		log.Println(err)
+		return nil, err
+	}
+	return body.Data, nil
 }
 
 func (c *client) Products(searchQuery string) ([]uuid.UUID, error) {

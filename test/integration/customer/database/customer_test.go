@@ -41,8 +41,9 @@ func (suite *DatabaseSuite) TestCreateCustomer() {
 	suite.Assert().Nil(err)
 	suite.Assert().Equal(createdCustomer, product)
 
-	customers, err := suite.CustomerRepository.FindCustomers(context.Background())
+	customers, err := suite.CustomerRepository.FindCustomers(context.Background(), []uuid.UUID{createdCustomer.ID})
 
 	suite.Assert().Nil(err)
-	suite.Assert().Contains(customers, createdCustomer)
+	suite.Assert().Len(customers, 1)
+	suite.Assert().Equal(customers[createdCustomer.ID], createdCustomer)
 }
