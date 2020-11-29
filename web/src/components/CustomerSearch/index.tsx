@@ -38,7 +38,6 @@ export default function CustomerSearch() {
   };
   return (
     <div className="CustomerSearch" data-testid="CustomerSearch">
-      <h2>Customer Search</h2>
       <input onChange={handleQueryChange} value={query} />
       {error && <div>Error</div>}
       {loading && <div>Loading...</div>}
