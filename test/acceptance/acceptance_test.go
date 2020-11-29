@@ -17,6 +17,7 @@ type AcceptanceSuite struct {
 
 func (suite *AcceptanceSuite) SetupSuite() {
 	suite.Gateway = gateway.NewClient()
+	gateway.WaitUntilHealthy()
 	kafka.WaitUntilHealthy()
 }
 
