@@ -2,6 +2,10 @@ export function getCreateProductPageUrl() {
   return '/create/product'
 }
 
+export function getCustomerDetailPageUrl(customerId: string) {
+  return `/customers/${customerId}`;
+}
+
 export function getCustomerListPageUrl() {
   return '/customers'
 }

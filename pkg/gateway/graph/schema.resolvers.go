@@ -76,6 +76,18 @@ func (r *orderResolver) Customer(ctx context.Context, obj *model.Order) (*model.
 	}
 }
 
+func (r *queryResolver) Customer(ctx context.Context, id string) (*model.Customer, error) {
+	customerID, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	customer, err := r.CustomerReadAPI.Customer(customerID)
+	if err != nil {
+		return nil, err
+	}
+	return convert.Customer(customer), nil
+}
+
 func (r *queryResolver) Customers(ctx context.Context, query *string) ([]*model.Customer, error) {
 	q := ""
 	if query != nil {

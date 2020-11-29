@@ -1,5 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import React, { useState } from "react";
+import { Link } from 'react-router-dom'
+import { getCustomerDetailPageUrl } from "../../utilities";
 
 interface CustomerSearchQuery {
   customers: Array<{
@@ -42,7 +44,9 @@ export default function CustomerSearch() {
       {loading && <div>Loading...</div>}
       {data && data.customers.map((customer) => (
           <div key={customer.id}>
-            {customer.firstName} {customer.lastName}
+            <Link to={getCustomerDetailPageUrl(customer.id)}>
+              {customer.firstName} {customer.lastName}
+            </Link>
           </div>
         ))}
       {!loading && data && data.customers.length === 0 && (
