@@ -15,7 +15,7 @@ import (
 type CustomerRepository interface {
 	CreateCustomer(context.Context, *customer.Customer) error
 	FindCustomer(context.Context, uuid.UUID) (*customer.Customer, error)
-	FindCustomers(context.Context) ([]*customer.Customer, error)
+	FindCustomers(context.Context, []uuid.UUID) (map[uuid.UUID]*customer.Customer, error)
 }
 
 type customerRepository struct {
@@ -68,14 +68,14 @@ func (c *customerRepository) FindCustomer(ctx context.Context, id uuid.UUID) (*c
 	return &customer, nil
 }
 
-func (c *customerRepository) FindCustomers(ctx context.Context) ([]*customer.Customer, error) {
-	cursor, err := c.collection.Find(ctx, bson.M{})
+func (c *customerRepository) FindCustomers(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID]*customer.Customer, error) {
+	cursor, err := c.collection.Find(ctx, bson.M{"id": bson.M{"$in": ids}})
 	defer cursor.Close(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var results []*customer.Customer
+	results := map[uuid.UUID]*customer.Customer{}
 
 	for cursor.Next(ctx) {
 		customer := &customer.Customer{}
@@ -84,7 +84,7 @@ func (c *customerRepository) FindCustomers(ctx context.Context) ([]*customer.Cus
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, customer)
+		results[customer.ID] = customer
 	}
 
 	return results, nil

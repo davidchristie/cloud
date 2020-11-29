@@ -6,6 +6,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	customerReadAPI "github.com/davidchristie/cloud/pkg/customer/read/api"
 	"github.com/davidchristie/cloud/pkg/gateway/graph"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/dataloader"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/generated"
@@ -14,11 +15,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func NewRouter(productReadAPI productReadAPI.Client) http.Handler {
+func NewRouter(customerReadAPI customerReadAPI.Client, productReadAPI productReadAPI.Client) http.Handler {
 	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: graph.NewResolver()}))
 	r := mux.NewRouter()
 	r.Handle("/", playground.Handler("GraphQL playground", "/query")).Methods("GET")
 	r.Handle("/query", server).Methods("POST")
-	r.Use(dataloader.Middleware(productReadAPI))
+	r.Use(dataloader.Middleware(customerReadAPI, productReadAPI))
 	return handlers.LoggingHandler(os.Stdout, r)
 }

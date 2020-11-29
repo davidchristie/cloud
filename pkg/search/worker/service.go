@@ -49,6 +49,7 @@ func StartService() error {
 
 	wg.Add(1)
 
+	go consumer.CustomerCreatedConsumer(es)
 	go consumer.ProductCreatedConsumer(es)
 
 	wg.Wait()

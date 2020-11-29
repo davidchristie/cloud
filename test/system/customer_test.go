@@ -4,6 +4,7 @@ import (
 	"time"
 
 	customerReadAPI "github.com/davidchristie/cloud/pkg/customer/read/api"
+	"github.com/google/uuid"
 )
 
 func (suite *SystemSuite) TestCreateCustomer() {
@@ -28,7 +29,7 @@ func (suite *SystemSuite) TestCreateCustomer() {
 
 	suite.T().Log("wait for created customer to appear in customer list")
 	suite.Assert().Eventually(func() bool {
-		customers, err := suite.CustomerReadAPI.Customers()
+		customers, err := suite.CustomerReadAPI.Customers([]uuid.UUID{createdCustomer.ID})
 
 		suite.Assert().Nil(err)
 

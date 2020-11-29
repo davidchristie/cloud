@@ -3,20 +3,18 @@ package gateway
 import (
 	"context"
 
-	"github.com/davidchristie/cloud/pkg/customer"
-	"github.com/davidchristie/cloud/pkg/order"
-	"github.com/davidchristie/cloud/pkg/product"
+	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/machinebox/graphql"
 )
 
 type Client interface {
-	CreateCustomer(*CreateCustomerInput) (*customer.Customer, error)
-	CreateOrder(*CreateOrderInput) (*order.Order, error)
-	CreateProduct(*CreateProductInput) (*product.Product, error)
-	Customers() ([]*customer.Customer, error)
-	Orders() ([]*order.Order, error)
-	Products(query *string) ([]*product.Product, error)
+	CreateCustomer(*CreateCustomerInput) (*Customer, error)
+	CreateOrder(*CreateOrderInput) (*Order, error)
+	CreateProduct(*CreateProductInput) (*Product, error)
+	Customers(query *string) ([]*Customer, error)
+	Orders() ([]*Order, error)
+	Products(query *string) ([]*Product, error)
 }
 
 type client struct {
@@ -44,35 +42,51 @@ type CreateProductInput struct {
 	Name        string `json:"name"`
 }
 
+type Customer struct {
+	FirstName string    `json:"firstName"`
+	ID        uuid.UUID `json:"id"`
+	LastName  string    `json:"lastName"`
+}
+
 type LineItemInput struct {
 	ProductID string `json:"productID"`
 	Quantity  int    `json:"quantity"`
 }
 
+type Order struct {
+	ID uuid.UUID `json:"id"`
+}
+
+type Product struct {
+	Description string    `json:"description"`
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+}
+
 // Responses
 
 type createCustomerResponse struct {
-	CreateCustomer *customer.Customer
+	CreateCustomer *Customer
 }
 
 type createOrderResponse struct {
-	CreateOrder *order.Order
+	CreateOrder *Order
 }
 
 type createProductResponse struct {
-	CreateProduct *product.Product
+	CreateProduct *Product
 }
 
 type customersResponse struct {
-	Customers []*customer.Customer
+	Customers []*Customer
 }
 
 type ordersResponse struct {
-	Orders []*order.Order
+	Orders []*Order
 }
 
 type productsResponse struct {
-	Products []*product.Product
+	Products []*Product
 }
 
 func NewClient() Client {
@@ -83,10 +97,10 @@ func NewClient() Client {
 	}
 }
 
-func (c *client) CreateCustomer(input *CreateCustomerInput) (*customer.Customer, error) {
+func (c *client) CreateCustomer(input *CreateCustomerInput) (*Customer, error) {
 	ctx := context.Background()
 	request := graphql.NewRequest(`
-		mutation ($input: CreateCustomerInput!) {
+		mutation CreateCustomer($input: CreateCustomerInput!) {
 			createCustomer(input: $input) {
 				firstName
 				id
@@ -102,10 +116,10 @@ func (c *client) CreateCustomer(input *CreateCustomerInput) (*customer.Customer,
 	return response.CreateCustomer, nil
 }
 
-func (c *client) CreateOrder(input *CreateOrderInput) (*order.Order, error) {
+func (c *client) CreateOrder(input *CreateOrderInput) (*Order, error) {
 	ctx := context.Background()
 	request := graphql.NewRequest(`
-		mutation ($input: CreateOrderInput!) {
+		mutation CreateOrder($input: CreateOrderInput!) {
 			createOrder(input: $input) {
 				id
 			}
@@ -119,10 +133,10 @@ func (c *client) CreateOrder(input *CreateOrderInput) (*order.Order, error) {
 	return response.CreateOrder, nil
 }
 
-func (c *client) CreateProduct(input *CreateProductInput) (*product.Product, error) {
+func (c *client) CreateProduct(input *CreateProductInput) (*Product, error) {
 	ctx := context.Background()
 	request := graphql.NewRequest(`
-		mutation ($input: CreateProductInput!) {
+		mutation CreateProduct($input: CreateProductInput!) {
 			createProduct(input: $input) {
 				description
 				id
@@ -138,17 +152,18 @@ func (c *client) CreateProduct(input *CreateProductInput) (*product.Product, err
 	return response.CreateProduct, nil
 }
 
-func (c *client) Customers() ([]*customer.Customer, error) {
+func (c *client) Customers(query *string) ([]*Customer, error) {
 	ctx := context.Background()
 	request := graphql.NewRequest(`
-		query {
-			customers {
+		query Customers($query: String) {
+			customers(query: $query) {
 				firstName
 				id
 				lastName
 			}
 		}
 	`)
+	request.Var("query", query)
 	response := customersResponse{}
 	if err := c.GraphQL.Run(ctx, request, &response); err != nil {
 		return nil, err
@@ -156,10 +171,10 @@ func (c *client) Customers() ([]*customer.Customer, error) {
 	return response.Customers, nil
 }
 
-func (c *client) Orders() ([]*order.Order, error) {
+func (c *client) Orders() ([]*Order, error) {
 	ctx := context.Background()
 	request := graphql.NewRequest(`
-		query {
+		query Orders{
 			orders {
 				customer {
 					firstName
@@ -185,11 +200,11 @@ func (c *client) Orders() ([]*order.Order, error) {
 	return response.Orders, nil
 }
 
-func (c *client) Products(query *string) ([]*product.Product, error) {
+func (c *client) Products(query *string) ([]*Product, error) {
 	ctx := context.Background()
 	request := graphql.NewRequest(`
-		query ($query: String) {
-			products (query: $query) {
+		query Products($query: String) {
+			products(query: $query) {
 				description
 				id
 				name

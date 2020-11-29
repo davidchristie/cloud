@@ -11,13 +11,13 @@ import (
 	"github.com/google/uuid"
 )
 
-const productSearch = `
+const customerSearch = `
 	{
 		"query": {
 			"multi_match": {
 				"fields": [
-					"description",
-					"name"
+					"first_name",
+					"last_name"
 				],
 				"query": "%s"
 			}
@@ -26,7 +26,7 @@ const productSearch = `
 	}
 `
 
-const productSearchAll = `
+const customerSearchAll = `
 	{
 		"query": {
 			"match_all": {}
@@ -35,7 +35,7 @@ const productSearchAll = `
 	}	
 `
 
-func (c *core) Products(ctx context.Context, query string) ([]uuid.UUID, error) {
+func (c *core) Customers(ctx context.Context, query string) ([]uuid.UUID, error) {
 
 	log.SetFlags(0)
 
@@ -46,15 +46,15 @@ func (c *core) Products(ctx context.Context, query string) ([]uuid.UUID, error) 
 	// Build the request body.
 	var body string
 	if query == "" {
-		body = productSearchAll
+		body = customerSearchAll
 	} else {
-		body = fmt.Sprintf(productSearch, query)
+		body = fmt.Sprintf(customerSearch, query)
 	}
 
 	// Perform the search request.
 	res, err := c.Elasticsearch.Search(
 		c.Elasticsearch.Search.WithContext(context.Background()),
-		c.Elasticsearch.Search.WithIndex(c.Specification.ElasticsearchProductIndex),
+		c.Elasticsearch.Search.WithIndex(c.Specification.ElasticsearchCustomerIndex),
 		c.Elasticsearch.Search.WithBody(strings.NewReader(body)),
 		c.Elasticsearch.Search.WithTrackTotalHits(true),
 		c.Elasticsearch.Search.WithPretty(),
@@ -102,7 +102,7 @@ func (c *core) Products(ctx context.Context, query string) ([]uuid.UUID, error) 
 	for i, hit := range hits {
 		id, err := uuid.Parse(hit.(map[string]interface{})["_id"].(string))
 		if err != nil {
-			log.Printf("Error parsing product ID: %v", err)
+			log.Printf("Error parsing customer ID: %v", err)
 		}
 		results[i] = id
 	}

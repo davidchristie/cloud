@@ -2,34 +2,34 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
-	"strings"
 
-	"github.com/davidchristie/cloud/pkg/customer"
-	"github.com/davidchristie/cloud/pkg/customer/read/api/core"
+	"github.com/davidchristie/cloud/pkg/search/api/core"
 	"github.com/google/uuid"
 )
 
 type CustomersResponseBody struct {
-	Data    map[uuid.UUID]*customer.Customer `json:"data,omitempty"`
-	Message string                           `json:"message,omitempty"`
+	Data    []uuid.UUID `json:"data"`
+	Message string      `json:"message,omitempty"`
 }
 
 func CustomersHandler(c core.Core) func(http.ResponseWriter, *http.Request) {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		response := CustomersResponseBody{}
 
+		query := request.URL.Query().Get("q")
+
 		writer.Header().Add("Content-Type", "application/json")
 
-		ids := strings.Split(request.URL.Query().Get("ids"), ",")
-
-		customers, err := c.Customers(request.Context(), ids)
+		results, err := c.Customers(request.Context(), query)
 		switch err {
 		case nil:
-			response.Data = customers
+			response.Data = results
 			break
 
 		default:
+			log.Printf("Error handling request: %s\n", err)
 			writer.WriteHeader(500)
 			response.Message = "Internal Server Error"
 			break
