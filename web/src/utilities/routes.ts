@@ -18,6 +18,10 @@ export function getHomePageUrl() {
   return '/'
 }
 
+export function getOrderPageUrl() {
+  return '/orders'
+}
+
 export function getProductDetailPageUrl(productId: string) {
   return `/product/${productId}`;
 }
