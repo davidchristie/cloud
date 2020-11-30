@@ -6,9 +6,10 @@ import CustomerDetailPage from "./pages/CustomerDetailPage";
 import CustomerListPage from "./pages/CustomerListPage";
 import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
+import OrderListPage from "./pages/OrderListPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductListPage from "./pages/ProductListPage";
-import { getCreateCustomerPageUrl, getCreateProductPageUrl, getCustomerDetailPageUrl, getCustomerListPageUrl, getHomePageUrl, getProductDetailPageUrl, getProductListPageUrl } from "./utilities";
+import { getCreateCustomerPageUrl, getCreateProductPageUrl, getCustomerDetailPageUrl, getCustomerListPageUrl, getHomePageUrl, getOrderPageUrl, getProductDetailPageUrl, getProductListPageUrl } from "./utilities";
 
 export default function Routes() {
   return (
@@ -24,6 +25,9 @@ export default function Routes() {
       </Route>
       <Route exact path={getCustomerDetailPageUrl(':customerId')}>
         <CustomerDetailPage />
+      </Route>
+      <Route exact path={getOrderPageUrl()}>
+        <OrderListPage />
       </Route>
       <Route exact path={getCreateProductPageUrl()}>
         <CreateProductPage />
