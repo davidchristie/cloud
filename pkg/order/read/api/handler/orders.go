@@ -17,7 +17,7 @@ func OrdersHandler(orderRepository orderDatabase.OrderRepository) func(http.Resp
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		ctx := request.Context()
 
-		orders, err := orderRepository.GetOrders(ctx)
+		orders, err := orderRepository.FindOrders(ctx)
 
 		writer.Header().Add("Content-Type", "application/json")
 

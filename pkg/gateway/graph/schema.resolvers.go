@@ -119,6 +119,18 @@ func (r *queryResolver) Customers(ctx context.Context, query *string) ([]*model.
 	return nonNilCustomers, nil
 }
 
+func (r *queryResolver) Order(ctx context.Context, id string) (*model.Order, error) {
+	orderID, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	order, err := r.OrderReadAPI.Order(orderID)
+	if err != nil {
+		return nil, err
+	}
+	return convert.Order(order), nil
+}
+
 func (r *queryResolver) Orders(ctx context.Context) ([]*model.Order, error) {
 	orders, err := r.OrderReadAPI.Orders()
 	if err != nil {

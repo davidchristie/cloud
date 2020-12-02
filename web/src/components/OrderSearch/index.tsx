@@ -1,5 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import React from "react";
+import { Link } from "react-router-dom";
+import { getOrderDetailPageUrl } from "../../utilities";
 
 interface OrderSearchQuery {
   orders: Array<{
@@ -43,7 +45,9 @@ export default function OrderSearch() {
       {loading && <div>Loading...</div>}
       {data && data.orders.map((order) => (
         <div key={order.id}>
-          {order.createdAt}
+          <Link to={getOrderDetailPageUrl(order.id)}>
+            {order.createdAt}
+          </Link>
         </div>
       ))}
       {!loading && data && data.orders.length === 0 && (

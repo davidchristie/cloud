@@ -2,9 +2,11 @@ package database
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/davidchristie/cloud/pkg/order"
+	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,7 +14,8 @@ import (
 
 type OrderRepository interface {
 	CreateOrder(context.Context, *order.Order) error
-	GetOrders(context.Context) ([]*order.Order, error)
+	FindOrder(context.Context, uuid.UUID) (*order.Order, error)
+	FindOrders(context.Context) ([]*order.Order, error)
 }
 
 type orderRepository struct {
@@ -22,6 +25,8 @@ type orderRepository struct {
 type orderSpecification struct {
 	OrderCollectionName string `required:"true" split_words:"true"`
 }
+
+var ErrOrderNotFound = errors.New("order not found")
 
 func NewOrderRepository(database *mongo.Database) OrderRepository {
 	spec := orderSpecification{}
@@ -35,8 +40,8 @@ func NewOrderRepository(database *mongo.Database) OrderRepository {
 	}
 }
 
-func (p *orderRepository) CreateOrder(ctx context.Context, order *order.Order) error {
-	insertResult, err := p.collection.InsertOne(ctx, order)
+func (o *orderRepository) CreateOrder(ctx context.Context, order *order.Order) error {
+	insertResult, err := o.collection.InsertOne(ctx, order)
 	if err != nil {
 		return err
 	}
@@ -44,8 +49,27 @@ func (p *orderRepository) CreateOrder(ctx context.Context, order *order.Order) e
 	return nil
 }
 
-func (p *orderRepository) GetOrders(ctx context.Context) ([]*order.Order, error) {
-	cursor, err := p.collection.Find(ctx, bson.M{})
+func (o *orderRepository) FindOrder(ctx context.Context, id uuid.UUID) (*order.Order, error) {
+	result := o.collection.FindOne(ctx, bson.D{
+		{Key: "id", Value: id},
+	})
+	err := result.Err()
+	if err == mongo.ErrNoDocuments {
+		return nil, ErrOrderNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	order := order.Order{}
+	err = result.Decode(&order)
+	if err != nil {
+		return nil, err
+	}
+	return &order, nil
+}
+
+func (o *orderRepository) FindOrders(ctx context.Context) ([]*order.Order, error) {
+	cursor, err := o.collection.Find(ctx, bson.M{})
 	defer cursor.Close(ctx)
 	if err != nil {
 		return nil, err

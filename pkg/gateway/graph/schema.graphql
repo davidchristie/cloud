@@ -45,6 +45,7 @@ type Product {
 type Query {
   customer(id: String!): Customer!
   customers(query: String): [Customer!]!
+  order(id: String!): Order!
   orders: [Order!]!
   product(id: String!): Product!
   products(query: String): [Product!]!

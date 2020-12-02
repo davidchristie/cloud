@@ -18,7 +18,11 @@ export function getHomePageUrl() {
   return '/'
 }
 
-export function getOrderPageUrl() {
+export function getOrderDetailPageUrl(orderId: string) {
+  return `/order/${orderId}`
+}
+
+export function getOrderListPageUrl() {
   return '/orders'
 }
 
