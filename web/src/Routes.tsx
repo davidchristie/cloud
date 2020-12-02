@@ -6,38 +6,59 @@ import CustomerDetailPage from "./pages/CustomerDetailPage";
 import CustomerListPage from "./pages/CustomerListPage";
 import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
+import OrderDetailPage from "./pages/OrderDetailPage";
 import OrderListPage from "./pages/OrderListPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductListPage from "./pages/ProductListPage";
-import { getCreateCustomerPageUrl, getCreateProductPageUrl, getCustomerDetailPageUrl, getCustomerListPageUrl, getHomePageUrl, getOrderPageUrl, getProductDetailPageUrl, getProductListPageUrl } from "./utilities";
+import { getCreateCustomerPageUrl, getCreateProductPageUrl, getCustomerDetailPageUrl, getCustomerListPageUrl, getHomePageUrl, getOrderDetailPageUrl, getOrderListPageUrl, getProductDetailPageUrl, getProductListPageUrl } from "./utilities";
+
+const routes = [
+  {
+    Component: HomePage,
+    path: getHomePageUrl(),
+  },
+  {
+    Component: CreateCustomerPage,
+    path: getCreateCustomerPageUrl(),
+  },
+  {
+    Component: CustomerListPage,
+    path: getCustomerListPageUrl(),
+  },
+  {
+    Component: CustomerDetailPage,
+    path: getCustomerDetailPageUrl(':customerId'),
+  },
+  {
+    Component: OrderListPage,
+    path: getOrderListPageUrl(),
+  },
+  {
+    Component: OrderDetailPage,
+    path: getOrderDetailPageUrl(':orderId'),
+  },
+  {
+    Component: CreateProductPage,
+    path: getCreateProductPageUrl(),
+  },
+  {
+    Component: ProductDetailPage,
+    path: getProductDetailPageUrl(':productId'),
+  },
+  {
+    Component: ProductListPage,
+    path: getProductListPageUrl(),
+  }
+]
 
 export default function Routes() {
   return (
     <Switch>
-      <Route exact path={getHomePageUrl()}>
-        <HomePage />
-      </Route>
-      <Route exact path={getCreateCustomerPageUrl()}>
-        <CreateCustomerPage />
-      </Route>
-      <Route exact path={getCustomerListPageUrl()}>
-        <CustomerListPage />
-      </Route>
-      <Route exact path={getCustomerDetailPageUrl(':customerId')}>
-        <CustomerDetailPage />
-      </Route>
-      <Route exact path={getOrderPageUrl()}>
-        <OrderListPage />
-      </Route>
-      <Route exact path={getCreateProductPageUrl()}>
-        <CreateProductPage />
-      </Route>
-      <Route exact path={getProductDetailPageUrl(':productId')}>
-        <ProductDetailPage />
-      </Route>
-      <Route exact path={getProductListPageUrl()}>
-        <ProductListPage />
-      </Route>
+      {routes.map(({ Component, path }) => (
+        <Route exact path={path}>
+          <Component />
+        </Route>
+      ))}
       <Route path="*">
         <NotFoundPage />
       </Route>

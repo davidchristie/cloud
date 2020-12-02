@@ -33,7 +33,7 @@ func (suite *DatabaseSuite) TestCreateOrder() {
 
 	suite.Assert().Nil(err)
 
-	orders, err := suite.OrderRepository.GetOrders(context.Background())
+	orders, err := suite.OrderRepository.FindOrders(context.Background())
 
 	suite.Assert().Nil(err)
 	suite.Assert().Contains(orders, createdOrder)

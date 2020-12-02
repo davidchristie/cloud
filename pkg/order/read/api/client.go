@@ -8,10 +8,12 @@ import (
 
 	"github.com/davidchristie/cloud/pkg/order"
 	"github.com/davidchristie/cloud/pkg/order/read/api/handler"
+	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 )
 
 type OrderReadAPIClient interface {
+	Order(uuid.UUID) (*order.Order, error)
 	Orders() ([]*order.Order, error)
 }
 
@@ -31,6 +33,25 @@ func NewClient() OrderReadAPIClient {
 	}
 }
 
+func (c *client) Order(id uuid.UUID) (*order.Order, error) {
+	url := c.url + "/orders/" + id.String()
+	response, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	if response.Header.Get("Content-Type") != "application/json" {
+		return nil, errors.New("invalid response content type: " + response.Header.Get("Content-Type"))
+	}
+	body, err := unmarshalOrderResponseBody(response)
+	if err != nil {
+		return nil, err
+	}
+	if response.StatusCode != 200 {
+		return nil, errors.New(body.Message)
+	}
+	return body.Data, nil
+}
+
 func (c *client) Orders() ([]*order.Order, error) {
 	url := c.url + "/orders"
 	response, err := http.Get(url)
@@ -48,6 +69,19 @@ func (c *client) Orders() ([]*order.Order, error) {
 		return nil, errors.New(body.Message)
 	}
 	return body.Data, nil
+}
+
+func unmarshalOrderResponseBody(response *http.Response) (*handler.OrderResponseBody, error) {
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	body := handler.OrderResponseBody{}
+	err = json.Unmarshal(data, &body)
+	if err != nil {
+		return nil, err
+	}
+	return &body, nil
 }
 
 func unmarshalOrdersResponseBody(response *http.Response) (*handler.OrdersResponseBody, error) {

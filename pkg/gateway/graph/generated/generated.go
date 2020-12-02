@@ -78,6 +78,7 @@ type ComplexityRoot struct {
 	Query struct {
 		Customer  func(childComplexity int, id string) int
 		Customers func(childComplexity int, query *string) int
+		Order     func(childComplexity int, id string) int
 		Orders    func(childComplexity int) int
 		Product   func(childComplexity int, id string) int
 		Products  func(childComplexity int, query *string) int
@@ -98,6 +99,7 @@ type OrderResolver interface {
 type QueryResolver interface {
 	Customer(ctx context.Context, id string) (*model.Customer, error)
 	Customers(ctx context.Context, query *string) ([]*model.Customer, error)
+	Order(ctx context.Context, id string) (*model.Order, error)
 	Orders(ctx context.Context) ([]*model.Order, error)
 	Product(ctx context.Context, id string) (*model.Product, error)
 	Products(ctx context.Context, query *string) ([]*model.Product, error)
@@ -262,6 +264,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Customers(childComplexity, args["query"].(*string)), true
 
+	case "Query.order":
+		if e.complexity.Query.Order == nil {
+			break
+		}
+
+		args, err := ec.field_Query_order_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Order(childComplexity, args["id"].(string)), true
+
 	case "Query.orders":
 		if e.complexity.Query.Orders == nil {
 			break
@@ -404,6 +418,7 @@ type Product {
 type Query {
   customer(id: String!): Customer!
   customers(query: String): [Customer!]!
+  order(id: String!): Order!
   orders: [Order!]!
   product(id: String!): Product!
   products(query: String): [Product!]!
@@ -503,6 +518,20 @@ func (ec *executionContext) field_Query_customers_args(ctx context.Context, rawA
 		}
 	}
 	args["query"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_order_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -1175,6 +1204,47 @@ func (ec *executionContext) _Query_customers(ctx context.Context, field graphql.
 	res := resTmp.([]*model.Customer)
 	fc.Result = res
 	return ec.marshalNCustomer2ᚕᚖgithubᚗcomᚋdavidchristieᚋcloudᚋpkgᚋgatewayᚋgraphᚋmodelᚐCustomerᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_order(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_order_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Order(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Order)
+	fc.Result = res
+	return ec.marshalNOrder2ᚖgithubᚗcomᚋdavidchristieᚋcloudᚋpkgᚋgatewayᚋgraphᚋmodelᚐOrder(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_orders(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2760,6 +2830,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_customers(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "order":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_order(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
