@@ -5,7 +5,8 @@ import (
 	"net/http"
 
 	"github.com/davidchristie/cloud/pkg/order"
-	orderDatabase "github.com/davidchristie/cloud/pkg/order/database"
+	"github.com/davidchristie/cloud/pkg/order/core"
+	"github.com/google/uuid"
 )
 
 type OrdersResponseBody struct {
@@ -13,11 +14,13 @@ type OrdersResponseBody struct {
 	Message string         `json:"message"`
 }
 
-func OrdersHandler(orderRepository orderDatabase.OrderRepository) func(http.ResponseWriter, *http.Request) {
+func OrdersHandler(c core.Core) func(http.ResponseWriter, *http.Request) {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		ctx := request.Context()
 
-		orders, err := orderRepository.FindOrders(ctx)
+		orders, err := c.Orders(ctx, core.OrdersInput{
+			CustomerID: parseUUID(request.URL.Query().Get("customer_id")),
+		})
 
 		writer.Header().Add("Content-Type", "application/json")
 
@@ -36,4 +39,12 @@ func OrdersHandler(orderRepository orderDatabase.OrderRepository) func(http.Resp
 			writer.Write(data)
 		}
 	})
+}
+
+func parseUUID(s string) *uuid.UUID {
+	u, err := uuid.Parse(s)
+	if err != nil {
+		return nil
+	}
+	return &u
 }

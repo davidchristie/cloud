@@ -16,6 +16,7 @@ type OrderRepository interface {
 	CreateOrder(context.Context, *order.Order) error
 	FindOrder(context.Context, uuid.UUID) (*order.Order, error)
 	FindOrders(context.Context) ([]*order.Order, error)
+	FindOrdersByCustomer(context.Context, uuid.UUID) ([]*order.Order, error)
 }
 
 type orderRepository struct {
@@ -70,6 +71,29 @@ func (o *orderRepository) FindOrder(ctx context.Context, id uuid.UUID) (*order.O
 
 func (o *orderRepository) FindOrders(ctx context.Context) ([]*order.Order, error) {
 	cursor, err := o.collection.Find(ctx, bson.M{})
+	defer cursor.Close(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var results []*order.Order
+
+	for cursor.Next(ctx) {
+		order := &order.Order{}
+
+		err := cursor.Decode(order)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, order)
+	}
+
+	return results, nil
+}
+
+func (o *orderRepository) FindOrdersByCustomer(ctx context.Context, customerID uuid.UUID) ([]*order.Order, error) {
+	filter := bson.M{"customerid": customerID}
+	cursor, err := o.collection.Find(ctx, filter)
 	defer cursor.Close(ctx)
 	if err != nil {
 		return nil, err

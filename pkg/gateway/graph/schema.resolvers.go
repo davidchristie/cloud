@@ -131,8 +131,8 @@ func (r *queryResolver) Order(ctx context.Context, id string) (*model.Order, err
 	return convert.Order(order), nil
 }
 
-func (r *queryResolver) Orders(ctx context.Context) ([]*model.Order, error) {
-	orders, err := r.OrderReadAPI.Orders()
+func (r *queryResolver) Orders(ctx context.Context, customerID *string) ([]*model.Order, error) {
+	orders, err := r.OrderReadAPI.Orders(customerID)
 	if err != nil {
 		return nil, err
 	}

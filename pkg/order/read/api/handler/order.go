@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/davidchristie/cloud/pkg/order"
+	"github.com/davidchristie/cloud/pkg/order/core"
 	orderDatabase "github.com/davidchristie/cloud/pkg/order/database"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -16,7 +17,7 @@ type OrderResponseBody struct {
 	Message string       `json:"message,omitempty"`
 }
 
-func OrderHandler(orderRepository orderDatabase.OrderRepository) func(http.ResponseWriter, *http.Request) {
+func OrderHandler(c core.Core) func(http.ResponseWriter, *http.Request) {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		response := OrderResponseBody{}
 
@@ -31,7 +32,7 @@ func OrderHandler(orderRepository orderDatabase.OrderRepository) func(http.Respo
 			return
 		}
 
-		order, err := orderRepository.FindOrder(request.Context(), orderID)
+		order, err := c.Order(request.Context(), orderID)
 
 		switch err {
 		case nil:

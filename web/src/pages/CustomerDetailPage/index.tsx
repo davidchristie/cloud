@@ -1,6 +1,7 @@
 import { gql, useQuery } from '@apollo/client';
 import React from 'react'
 import { useParams } from "react-router-dom";
+import OrderList from '../../components/OrderList';
 import Page from '../../components/Page';
 import PageHeading from '../../components/PageHeading'
 import NotFoundPage from '../NotFoundPage';
@@ -45,6 +46,8 @@ export default function CustomerDetailPage() {
       {data && (
         <>
           <PageHeading>{data.customer.firstName} {data.customer.lastName}</PageHeading>
+          <h2>Orders</h2>
+          <OrderList customerId={data.customer.id} />
         </>
       )}
     </Page>

@@ -24,6 +24,6 @@ it("renders 'Order List' page heading", () => {
 
 it("renders order search", () => {
   renderOrderListPage();
-  const orderSearch = screen.getByTestId("OrderSearch");
+  const orderSearch = screen.getByTestId("OrderList");
   expect(orderSearch).toBeInTheDocument();
 });

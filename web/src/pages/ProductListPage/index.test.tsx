@@ -24,6 +24,6 @@ it("renders 'Product List' page heading", () => {
 
 it("renders product search", () => {
   renderProductListPage();
-  const productSearch = screen.getByTestId("ProductSearch");
+  const productSearch = screen.getByTestId("ProductList");
   expect(productSearch).toBeInTheDocument();
 });
