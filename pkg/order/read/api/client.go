@@ -8,13 +8,18 @@ import (
 
 	"github.com/davidchristie/cloud/pkg/order"
 	"github.com/davidchristie/cloud/pkg/order/read/api/handler"
+	"github.com/google/go-querystring/query"
 	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
 )
 
 type OrderReadAPIClient interface {
 	Order(uuid.UUID) (*order.Order, error)
-	Orders() ([]*order.Order, error)
+	Orders(customerID *string) ([]*order.Order, error)
+}
+
+type OrdersOptions struct {
+	CustomerID *string `url:"customer_id"`
 }
 
 type client struct {
@@ -52,8 +57,12 @@ func (c *client) Order(id uuid.UUID) (*order.Order, error) {
 	return body.Data, nil
 }
 
-func (c *client) Orders() ([]*order.Order, error) {
-	url := c.url + "/orders"
+func (c *client) Orders(customerID *string) ([]*order.Order, error) {
+	opt := OrdersOptions{
+		CustomerID: customerID,
+	}
+	v, _ := query.Values(opt)
+	url := c.url + "/orders?" + v.Encode()
 	response, err := http.Get(url)
 	if err != nil {
 		return nil, err

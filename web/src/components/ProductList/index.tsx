@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { getProductDetailPageUrl } from "../../utilities";
 
-interface ProductSearchQuery {
+interface ProductListQuery {
   products: Array<{
     description: string;
     id: string;
@@ -11,8 +11,8 @@ interface ProductSearchQuery {
   }>;
 }
 
-const PRODUCT_SEARCH_QUERY = gql`
-  query ProductSearch($query: String!) {
+const PRODUCT_LIST_QUERY = gql`
+  query ProductList($query: String!) {
     products(query: $query) {
       description
       id
@@ -21,10 +21,10 @@ const PRODUCT_SEARCH_QUERY = gql`
   }
 `;
 
-export default function ProductSearch() {
+export default function ProductList() {
   const [query, setQuery] = useState("");
-  const { data, loading, error } = useQuery<ProductSearchQuery>(
-    PRODUCT_SEARCH_QUERY,
+  const { data, loading, error } = useQuery<ProductListQuery>(
+    PRODUCT_LIST_QUERY,
     {
       variables: {
         query,
@@ -37,15 +37,15 @@ export default function ProductSearch() {
     }
   };
   return (
-    <div className="ProductSearch" data-testid="ProductSearch">
+    <div className="ProductList" data-testid="ProductList">
       <input onChange={handleQueryChange} value={query} />
       {error && <div>Error</div>}
       {loading && <div>Loading...</div>}
       {data && data.products.map((product) => (
-          <div key={product.id}>
-            <Link to={getProductDetailPageUrl(product.id)}>{product.name}</Link>
-          </div>
-        ))}
+        <div key={product.id}>
+          <Link to={getProductDetailPageUrl(product.id)}>{product.name}</Link>
+        </div>
+      ))}
       {!loading && data && data.products.length === 0 && (
         <div>No results</div>
       )}

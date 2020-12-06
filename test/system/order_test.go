@@ -10,7 +10,8 @@ func (suite *SystemSuite) TestCreateOrder() {
 
 	suite.T().Log("wait for created order to appear in order list")
 	suite.Assert().Eventually(func() bool {
-		orders, err := suite.OrderReadAPI.Orders()
+		customerID := createdOrder.CustomerID.String()
+		orders, err := suite.OrderReadAPI.Orders(&customerID)
 
 		suite.Assert().Nil(err)
 

@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { getOrderDetailPageUrl } from "../../utilities";
 
-interface OrderSearchQuery {
+interface OrderListQuery {
   orders: Array<{
     customer: {
       id: string;
@@ -19,9 +19,13 @@ interface OrderSearchQuery {
   }>;
 }
 
-const ORDER_SEARCH_QUERY = gql`
-  query OrderSearch {
-    orders {
+interface Props {
+  customerId?: string
+}
+
+const ORDER_LIST_QUERY = gql`
+  query OrderList($customerID: String) {
+    orders(customerID: $customerID) {
       customer {
         id
       }
@@ -37,10 +41,14 @@ const ORDER_SEARCH_QUERY = gql`
   }
 `;
 
-export default function OrderSearch() {
-  const { data, loading, error } = useQuery<OrderSearchQuery>(ORDER_SEARCH_QUERY);
+export default function OrderList({ customerId }: Props) {
+  const { data, loading, error } = useQuery<OrderListQuery>(ORDER_LIST_QUERY, {
+    variables: {
+      customerID: customerId,
+    }
+  });
   return (
-    <div className="OrderSearch" data-testid="OrderSearch">
+    <div className="OrderList" data-testid="OrderList">
       {error && <div>Error</div>}
       {loading && <div>Loading...</div>}
       {data && data.orders.map((order) => (

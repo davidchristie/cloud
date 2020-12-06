@@ -7,12 +7,6 @@ services:
       dockerfile: build/cloud/Dockerfile
     image: cloud
 
-  customer-database:
-    environment:
-      - MONGO_DATA_DIR=/data/db
-      - MONGO_LOG_DIR=/dev/null
-    image: mongo:4.0
-
   customer-read-api:
     build:
       args:
@@ -20,7 +14,7 @@ services:
       context: build/service
     depends_on:
       - build-cloud-image
-      - customer-database
+      - mongo
     env_file:
       - configs/customer-database.env
     image: customer-read-api
@@ -33,7 +27,7 @@ services:
     depends_on:
       - build-cloud-image
       - kafka
-      - customer-database
+      - mongo
     env_file:
       - configs/kafka.env
       - configs/customer-database.env
@@ -117,11 +111,18 @@ services:
       - PRODUCT_WRITE_API_URL=http://product-write-api:8080
     image: load-generator
 
-  order-database:
+  mongo:
     environment:
       - MONGO_DATA_DIR=/data/db
       - MONGO_LOG_DIR=/dev/null
     image: mongo:4.0
+
+  mongo-express:
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+    image: mongo-express
+    ports:
+      - 8081:8081
 
   order-read-api:
     build:
@@ -130,7 +131,7 @@ services:
       context: build/service
     depends_on:
       - build-cloud-image
-      - order-database
+      - mongo
     env_file:
       - configs/order-database.env
     image: order-read-api
@@ -143,7 +144,7 @@ services:
     depends_on:
       - build-cloud-image
       - kafka
-      - order-database
+      - mongo
     env_file:
       - configs/kafka.env
       - configs/order-database.env
@@ -164,12 +165,6 @@ services:
       - configs/kafka.env
     image: order-write-api
 
-  product-database:
-    environment:
-      - MONGO_DATA_DIR=/data/db
-      - MONGO_LOG_DIR=/dev/null
-    image: mongo:4.0
-
   product-read-api:
     build:
       args:
@@ -177,7 +172,7 @@ services:
       context: build/service
     depends_on:
       - build-cloud-image
-      - product-database
+      - mongo
     env_file:
       - configs/product-database.env
     image: product-read-api
@@ -190,7 +185,7 @@ services:
     depends_on:
       - build-cloud-image
       - kafka
-      - product-database
+      - mongo
     env_file:
       - configs/kafka.env
       - configs/product-database.env
