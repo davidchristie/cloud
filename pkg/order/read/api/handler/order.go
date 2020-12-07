@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/davidchristie/cloud/pkg/order"
-	"github.com/davidchristie/cloud/pkg/order/core"
-	orderDatabase "github.com/davidchristie/cloud/pkg/order/database"
+	"github.com/davidchristie/cloud/pkg/order/database"
+	"github.com/davidchristie/cloud/pkg/order/read/api/core"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
@@ -39,7 +39,7 @@ func OrderHandler(c core.Core) func(http.ResponseWriter, *http.Request) {
 			response.Data = order
 			break
 
-		case orderDatabase.ErrOrderNotFound:
+		case database.ErrOrderNotFound:
 			writer.WriteHeader(404)
 			response.Message = "Not Found"
 			break

@@ -3,9 +3,10 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/davidchristie/cloud/pkg/order"
-	"github.com/davidchristie/cloud/pkg/order/core"
+	"github.com/davidchristie/cloud/pkg/order/read/api/core"
 	"github.com/google/uuid"
 )
 
@@ -20,6 +21,8 @@ func OrdersHandler(c core.Core) func(http.ResponseWriter, *http.Request) {
 
 		orders, err := c.Orders(ctx, core.OrdersInput{
 			CustomerID: parseUUID(request.URL.Query().Get("customer_id")),
+			Limit:      parseInt64(request.URL.Query().Get("limit")),
+			Skip:       parseInt64(request.URL.Query().Get("skip")),
 		})
 
 		writer.Header().Add("Content-Type", "application/json")
@@ -39,6 +42,14 @@ func OrdersHandler(c core.Core) func(http.ResponseWriter, *http.Request) {
 			writer.Write(data)
 		}
 	})
+}
+
+func parseInt64(s string) *int64 {
+	n, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return nil
+	}
+	return &n
 }
 
 func parseUUID(s string) *uuid.UUID {

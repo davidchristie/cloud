@@ -79,7 +79,7 @@ type ComplexityRoot struct {
 		Customer  func(childComplexity int, id string) int
 		Customers func(childComplexity int, query *string) int
 		Order     func(childComplexity int, id string) int
-		Orders    func(childComplexity int, customerID *string) int
+		Orders    func(childComplexity int, customerID *string, limit *int, skip *int) int
 		Product   func(childComplexity int, id string) int
 		Products  func(childComplexity int, query *string) int
 	}
@@ -100,7 +100,7 @@ type QueryResolver interface {
 	Customer(ctx context.Context, id string) (*model.Customer, error)
 	Customers(ctx context.Context, query *string) ([]*model.Customer, error)
 	Order(ctx context.Context, id string) (*model.Order, error)
-	Orders(ctx context.Context, customerID *string) ([]*model.Order, error)
+	Orders(ctx context.Context, customerID *string, limit *int, skip *int) ([]*model.Order, error)
 	Product(ctx context.Context, id string) (*model.Product, error)
 	Products(ctx context.Context, query *string) ([]*model.Product, error)
 }
@@ -286,7 +286,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Orders(childComplexity, args["customerID"].(*string)), true
+		return e.complexity.Query.Orders(childComplexity, args["customerID"].(*string), args["limit"].(*int), args["skip"].(*int)), true
 
 	case "Query.product":
 		if e.complexity.Query.Product == nil {
@@ -424,7 +424,7 @@ type Query {
   customer(id: String!): Customer!
   customers(query: String): [Customer!]!
   order(id: String!): Order!
-  orders(customerID: String): [Order!]!
+  orders(customerID: String, limit: Int, skip: Int): [Order!]!
   product(id: String!): Product!
   products(query: String): [Product!]!
 }
@@ -551,6 +551,22 @@ func (ec *executionContext) field_Query_orders_args(ctx context.Context, rawArgs
 		}
 	}
 	args["customerID"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["skip"]; ok {
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["skip"] = arg2
 	return args, nil
 }
 
@@ -1290,7 +1306,7 @@ func (ec *executionContext) _Query_orders(ctx context.Context, field graphql.Col
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Orders(rctx, args["customerID"].(*string))
+		return ec.resolvers.Query().Orders(rctx, args["customerID"].(*string), args["limit"].(*int), args["skip"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3739,6 +3755,29 @@ func (ec *executionContext) marshalOCustomer2ᚖgithubᚗcomᚋdavidchristieᚋc
 		return graphql.Null
 	}
 	return ec._Customer(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
+	return graphql.UnmarshalInt(v)
+}
+
+func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	return graphql.MarshalInt(v)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOInt2int(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec.marshalOInt2int(ctx, sel, *v)
 }
 
 func (ec *executionContext) marshalOProduct2githubᚗcomᚋdavidchristieᚋcloudᚋpkgᚋgatewayᚋgraphᚋmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v model.Product) graphql.Marshaler {

@@ -15,6 +15,8 @@ type Core interface {
 
 type OrdersInput struct {
 	CustomerID *uuid.UUID
+	Limit      *int64
+	Skip       *int64
 }
 
 type core struct {
@@ -32,8 +34,9 @@ func (c *core) Order(ctx context.Context, orderID uuid.UUID) (*order.Order, erro
 }
 
 func (c *core) Orders(ctx context.Context, input OrdersInput) ([]*order.Order, error) {
-	if input.CustomerID != nil {
-		return c.orderRepository.FindOrdersByCustomer(ctx, *input.CustomerID)
-	}
-	return c.orderRepository.FindOrders(ctx)
+	return c.orderRepository.FindOrders(ctx, database.FindOrdersInput{
+		CustomerID: input.CustomerID,
+		Limit:      input.Limit,
+		Skip:       input.Skip,
+	})
 }

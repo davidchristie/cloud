@@ -54,8 +54,8 @@ const routes = [
 export default function Routes() {
   return (
     <Switch>
-      {routes.map(({ Component, path }) => (
-        <Route exact path={path}>
+      {routes.map(({ Component, path }, index) => (
+        <Route exact key={index} path={path}>
           <Component />
         </Route>
       ))}
