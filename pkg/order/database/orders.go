@@ -10,13 +10,19 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+type FindOrdersInput struct {
+	CustomerID *uuid.UUID
+	Limit      *int64
+	Skip       *int64
+}
 
 type OrderRepository interface {
 	CreateOrder(context.Context, *order.Order) error
 	FindOrder(context.Context, uuid.UUID) (*order.Order, error)
-	FindOrders(context.Context) ([]*order.Order, error)
-	FindOrdersByCustomer(context.Context, uuid.UUID) ([]*order.Order, error)
+	FindOrders(context.Context, FindOrdersInput) ([]*order.Order, error)
 }
 
 type orderRepository struct {
@@ -27,7 +33,10 @@ type orderSpecification struct {
 	OrderCollectionName string `required:"true" split_words:"true"`
 }
 
-var ErrOrderNotFound = errors.New("order not found")
+var (
+	defaultLimit     int64 = 25
+	ErrOrderNotFound       = errors.New("order not found")
+)
 
 func NewOrderRepository(database *mongo.Database) OrderRepository {
 	spec := orderSpecification{}
@@ -69,47 +78,40 @@ func (o *orderRepository) FindOrder(ctx context.Context, id uuid.UUID) (*order.O
 	return &order, nil
 }
 
-func (o *orderRepository) FindOrders(ctx context.Context) ([]*order.Order, error) {
-	cursor, err := o.collection.Find(ctx, bson.M{})
+func (o *orderRepository) FindOrders(ctx context.Context, input FindOrdersInput) ([]*order.Order, error) {
+	cursor, err := o.collection.Find(ctx, formatOrdersFilter(input), formatOrdersOptions(input))
 	defer cursor.Close(ctx)
 	if err != nil {
 		return nil, err
 	}
-
 	var results []*order.Order
-
 	for cursor.Next(ctx) {
 		order := &order.Order{}
-
 		err := cursor.Decode(order)
 		if err != nil {
 			return nil, err
 		}
 		results = append(results, order)
 	}
-
 	return results, nil
 }
 
-func (o *orderRepository) FindOrdersByCustomer(ctx context.Context, customerID uuid.UUID) ([]*order.Order, error) {
-	filter := bson.M{"customerid": customerID}
-	cursor, err := o.collection.Find(ctx, filter)
-	defer cursor.Close(ctx)
-	if err != nil {
-		return nil, err
+func formatOrdersFilter(input FindOrdersInput) bson.M {
+	filter := bson.M{}
+	if input.CustomerID != nil {
+		filter["customerid"] = input.CustomerID
 	}
+	return filter
+}
 
-	var results []*order.Order
-
-	for cursor.Next(ctx) {
-		order := &order.Order{}
-
-		err := cursor.Decode(order)
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, order)
+func formatOrdersOptions(input FindOrdersInput) *options.FindOptions {
+	opt := options.FindOptions{
+		Limit: input.Limit,
+		Skip:  input.Skip,
 	}
-
-	return results, nil
+	if opt.Limit == nil {
+		opt.Limit = &defaultLimit
+	}
+	fmt.Println("LIMIT: ", *opt.Limit)
+	return &opt
 }

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/davidchristie/cloud/pkg/order/core"
 	"github.com/davidchristie/cloud/pkg/order/database"
+	"github.com/davidchristie/cloud/pkg/order/read/api/core"
 	"github.com/davidchristie/cloud/pkg/order/read/api/handler"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"

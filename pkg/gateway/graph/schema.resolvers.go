@@ -12,6 +12,7 @@ import (
 	"github.com/davidchristie/cloud/pkg/gateway/graph/generated"
 	"github.com/davidchristie/cloud/pkg/gateway/graph/model"
 	"github.com/davidchristie/cloud/pkg/order"
+	orderReadAPI "github.com/davidchristie/cloud/pkg/order/read/api"
 	"github.com/davidchristie/cloud/pkg/order/write/api"
 	"github.com/google/uuid"
 )
@@ -131,8 +132,12 @@ func (r *queryResolver) Order(ctx context.Context, id string) (*model.Order, err
 	return convert.Order(order), nil
 }
 
-func (r *queryResolver) Orders(ctx context.Context, customerID *string) ([]*model.Order, error) {
-	orders, err := r.OrderReadAPI.Orders(customerID)
+func (r *queryResolver) Orders(ctx context.Context, customerID *string, limit *int, skip *int) ([]*model.Order, error) {
+	orders, err := r.OrderReadAPI.Orders(orderReadAPI.OrdersInput{
+		CustomerID: customerID,
+		Limit:      limit,
+		Skip:       skip,
+	})
 	if err != nil {
 		return nil, err
 	}

@@ -15,11 +15,13 @@ import (
 
 type OrderReadAPIClient interface {
 	Order(uuid.UUID) (*order.Order, error)
-	Orders(customerID *string) ([]*order.Order, error)
+	Orders(OrdersInput) ([]*order.Order, error)
 }
 
-type OrdersOptions struct {
-	CustomerID *string `url:"customer_id"`
+type OrdersInput struct {
+	CustomerID *string `url:"customer_id,omitempty"`
+	Limit      *int    `url:"limit,omitempty"`
+	Skip       *int    `url:"skip,omitempty"`
 }
 
 type client struct {
@@ -57,10 +59,7 @@ func (c *client) Order(id uuid.UUID) (*order.Order, error) {
 	return body.Data, nil
 }
 
-func (c *client) Orders(customerID *string) ([]*order.Order, error) {
-	opt := OrdersOptions{
-		CustomerID: customerID,
-	}
+func (c *client) Orders(opt OrdersInput) ([]*order.Order, error) {
 	v, _ := query.Values(opt)
 	url := c.url + "/orders?" + v.Encode()
 	response, err := http.Get(url)

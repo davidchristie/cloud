@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/davidchristie/cloud/pkg/order"
+	"github.com/davidchristie/cloud/pkg/order/database"
 	"github.com/google/uuid"
 )
 
@@ -33,7 +34,7 @@ func (suite *DatabaseSuite) TestCreateOrder() {
 
 	suite.Assert().Nil(err)
 
-	orders, err := suite.OrderRepository.FindOrders(context.Background())
+	orders, err := suite.OrderRepository.FindOrders(context.Background(), database.FindOrdersInput{})
 
 	suite.Assert().Nil(err)
 	suite.Assert().Contains(orders, createdOrder)
