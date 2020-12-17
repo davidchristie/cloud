@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 
@@ -16,7 +17,7 @@ type specificiation struct {
 	KafkaOrderCreatedTopic string `required:"true" split_words:"true"`
 }
 
-func StartService() {
+func StartService() error {
 	spec := specificiation{}
 	envconfig.MustProcess("", &spec)
 
@@ -47,8 +48,7 @@ func StartService() {
 		fmt.Printf("order created: %+v\n", event.Data)
 
 		orderRepository.CreateOrder(context.Background(), event.Data)
-		if err != nil {
-			log.Fatal(err)
-		}
 	}
+
+	return errors.New("error in order-worker service")
 }

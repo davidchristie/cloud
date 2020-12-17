@@ -1,21 +1,16 @@
 package api
 
 import (
-	"net/http"
-
+	"github.com/davidchristie/cloud/pkg/http"
+	"github.com/davidchristie/cloud/pkg/router"
 	"github.com/davidchristie/cloud/pkg/search/api/core"
-	"github.com/davidchristie/cloud/pkg/search/api/router"
-	"github.com/kelseyhightower/envconfig"
+	"github.com/davidchristie/cloud/pkg/search/api/handler"
 )
 
-type serviceSpecification struct {
-	Port string `default:"8080"`
-}
-
 func StartService() error {
-	spec := serviceSpecification{}
-	envconfig.MustProcess("", &spec)
 	c := core.NewCore()
-	r := router.NewRouter(c)
-	return http.ListenAndServe(":"+spec.Port, r)
+	r := router.NewRouter()
+	r.HandleFunc("/customers", handler.CustomersHandler(c)).Methods("GET")
+	r.HandleFunc("/products", handler.ProductsHandler(c)).Methods("GET")
+	return http.ListenAndServe(r)
 }

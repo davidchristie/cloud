@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+
 	customerWriteAPI "github.com/davidchristie/cloud/pkg/customer/write/api"
 	orderWriteAPI "github.com/davidchristie/cloud/pkg/order/write/api"
 	productWriteAPI "github.com/davidchristie/cloud/pkg/product/write/api"
@@ -12,14 +14,14 @@ type service struct {
 	ProductWriteAPI  productWriteAPI.Client
 }
 
-func Start() {
+func StartService() error {
 	s := service{
 		CustomerWriteAPI: customerWriteAPI.NewClient(),
 		OrderWriteAPI:    orderWriteAPI.NewClient(),
 		ProductWriteAPI:  productWriteAPI.NewClient(),
 	}
-
 	go s.GenerateFakeCustomers()
 	go s.GenerateFakeProducts()
 	s.GenerateFakeOrders()
+	return errors.New("error in load-generator service")
 }
