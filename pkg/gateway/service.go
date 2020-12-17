@@ -3,23 +3,22 @@
 package gateway
 
 import (
-	"log"
-	"net/http"
-
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	customerReadAPI "github.com/davidchristie/cloud/pkg/customer/read/api"
-	"github.com/davidchristie/cloud/pkg/gateway/router"
+	"github.com/davidchristie/cloud/pkg/gateway/graph"
+	"github.com/davidchristie/cloud/pkg/gateway/graph/dataloader"
+	"github.com/davidchristie/cloud/pkg/gateway/graph/generated"
+	"github.com/davidchristie/cloud/pkg/http"
 	productReadAPI "github.com/davidchristie/cloud/pkg/product/read/api"
-	"github.com/kelseyhightower/envconfig"
+	"github.com/davidchristie/cloud/pkg/router"
 )
 
-type serviceSpecification struct {
-	Port string `default:"8080"`
-}
-
 func StartService() error {
-	spec := serviceSpecification{}
-	envconfig.MustProcess("", &spec)
-	r := router.NewRouter(customerReadAPI.NewClient(), productReadAPI.NewClient())
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", spec.Port)
-	return http.ListenAndServe(":"+spec.Port, r)
+	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: graph.NewResolver()}))
+	r := router.NewRouter()
+	r.Handle("/", playground.Handler("GraphQL playground", "/query")).Methods("GET")
+	r.Handle("/query", server).Methods("POST")
+	r.Use(dataloader.Middleware(customerReadAPI.NewClient(), productReadAPI.NewClient()))
+	return http.ListenAndServe(r)
 }

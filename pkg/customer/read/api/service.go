@@ -1,16 +1,16 @@
 package api
 
 import (
-	"net/http"
-
 	"github.com/davidchristie/cloud/pkg/customer/read/api/core"
-	"github.com/davidchristie/cloud/pkg/customer/read/api/router"
+	"github.com/davidchristie/cloud/pkg/customer/read/api/handler"
+	"github.com/davidchristie/cloud/pkg/http"
+	"github.com/davidchristie/cloud/pkg/router"
 )
 
 func StartService() error {
 	c := core.NewCore()
-
-	r := router.NewRouter(c)
-
-	return http.ListenAndServe(":8080", r)
+	r := router.NewRouter()
+	r.HandleFunc("/customers", handler.CustomersHandler(c)).Methods("GET")
+	r.HandleFunc("/customers/{id}", handler.CustomerHandler(c)).Methods("GET")
+	return http.ListenAndServe(r)
 }

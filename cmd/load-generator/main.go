@@ -1,7 +1,11 @@
 package main
 
-import "github.com/davidchristie/cloud/pkg/load-generator/service"
+import (
+	"log"
+
+	"github.com/davidchristie/cloud/pkg/load-generator/service"
+)
 
 func main() {
-	service.Start()
+	log.Fatal(service.StartService())
 }
