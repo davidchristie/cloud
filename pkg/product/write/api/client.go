@@ -15,6 +15,7 @@ import (
 
 type Client interface {
 	CreateProduct(name, description string, correlationID uuid.UUID) (*product.Product, error)
+	DeleteProduct(id uuid.UUID, correlationID uuid.UUID) error
 }
 
 type client struct {
@@ -61,6 +62,21 @@ func (c *client) CreateProduct(name, description string, correlationID uuid.UUID
 		return nil, errors.New(body.Message)
 	}
 	return body.Data, nil
+}
+
+func (c *client) DeleteProduct(id uuid.UUID, correlationID uuid.UUID) error {
+	url := c.URL + "/products/" + id.String()
+	request, err := http.NewRequest("DELETE", url, nil)
+	request.Header.Add("correlation_id", correlationID.String())
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+	if response.StatusCode != 200 {
+		return errors.New(response.Status)
+	}
+	return nil
 }
 
 func unmarshalCreateProductResponseBody(response *http.Response) (*handler.CreateProductResponseBody, error) {

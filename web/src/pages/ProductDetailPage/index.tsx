@@ -1,6 +1,7 @@
 import { gql, useQuery } from '@apollo/client';
 import React from 'react'
 import { useParams } from "react-router-dom";
+import DeleteProductButton from '../../components/DeleteProductButton';
 import Page from '../../components/Page';
 import PageHeading from "../../components/PageHeading";
 import NotFoundPage from '../NotFoundPage';
@@ -45,6 +46,7 @@ export default function ProductDetailPage() {
       {data && (
         <>
           <PageHeading>{data.product.name}</PageHeading>
+          <DeleteProductButton productId={data.product.id} />
           <p>{data.product.description}</p>
         </>
       )}

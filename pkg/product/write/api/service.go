@@ -10,6 +10,7 @@ import (
 func StartService() error {
 	c := core.NewCore()
 	r := router.NewRouter()
-	r.HandleFunc("/products", handler.CreateProductHandler(c))
+	r.HandleFunc("/products", handler.CreateProductHandler(c)).Methods("POST")
+	r.HandleFunc("/products/{id}", handler.DeleteProductHandler(c)).Methods("DELETE")
 	return http.ListenAndServe(r)
 }

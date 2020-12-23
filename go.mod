@@ -20,4 +20,5 @@ require (
 	github.com/vektah/gqlparser/v2 v2.0.1
 	go.mongodb.org/mongo-driver v1.3.2
 	golang.org/x/net v0.0.0-20200222125558-5a598a2470a0 // indirect
+	gotest.tools v2.2.0+incompatible // indirect
 )

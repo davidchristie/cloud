@@ -55,4 +55,5 @@ type Mutation {
   createCustomer(input: CreateCustomerInput!): Customer!
   createOrder(input: CreateOrderInput!): Order!
   createProduct(input: CreateProductInput!): Product!
+  deleteProduct(id: String!): Product!
 }
