@@ -63,6 +63,23 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input model.Create
 	return convert.Product(product), nil
 }
 
+func (r *mutationResolver) DeleteProduct(ctx context.Context, id string) (*model.Product, error) {
+	correlationID := uuid.New()
+	productID, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	product, err := dataloader.For(ctx).Product.Load(productID)
+	if err != nil {
+		return nil, err
+	}
+	err = r.ProductWriteAPI.DeleteProduct(productID, correlationID)
+	if err != nil {
+		return nil, err
+	}
+	return product, nil
+}
+
 func (r *orderResolver) Customer(ctx context.Context, obj *model.Order) (*model.Customer, error) {
 	customer, err := r.CustomerReadAPI.Customer(obj.CustomerID)
 	switch err {

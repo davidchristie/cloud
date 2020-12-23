@@ -60,6 +60,7 @@ type ComplexityRoot struct {
 		CreateCustomer func(childComplexity int, input model.CreateCustomerInput) int
 		CreateOrder    func(childComplexity int, input model.CreateOrderInput) int
 		CreateProduct  func(childComplexity int, input model.CreateProductInput) int
+		DeleteProduct  func(childComplexity int, id string) int
 	}
 
 	Order struct {
@@ -92,6 +93,7 @@ type MutationResolver interface {
 	CreateCustomer(ctx context.Context, input model.CreateCustomerInput) (*model.Customer, error)
 	CreateOrder(ctx context.Context, input model.CreateOrderInput) (*model.Order, error)
 	CreateProduct(ctx context.Context, input model.CreateProductInput) (*model.Product, error)
+	DeleteProduct(ctx context.Context, id string) (*model.Product, error)
 }
 type OrderResolver interface {
 	Customer(ctx context.Context, obj *model.Order) (*model.Customer, error)
@@ -190,6 +192,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateProduct(childComplexity, args["input"].(model.CreateProductInput)), true
+
+	case "Mutation.deleteProduct":
+		if e.complexity.Mutation.DeleteProduct == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteProduct_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteProduct(childComplexity, args["id"].(string)), true
 
 	case "Order.createdAt":
 		if e.complexity.Order.CreatedAt == nil {
@@ -433,6 +447,7 @@ type Mutation {
   createCustomer(input: CreateCustomerInput!): Customer!
   createOrder(input: CreateOrderInput!): Order!
   createProduct(input: CreateProductInput!): Product!
+  deleteProduct(id: String!): Product!
 }
 `, BuiltIn: false},
 }
@@ -481,6 +496,20 @@ func (ec *executionContext) field_Mutation_createProduct_args(ctx context.Contex
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteProduct_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -908,6 +937,47 @@ func (ec *executionContext) _Mutation_createProduct(ctx context.Context, field g
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateProduct(rctx, args["input"].(model.CreateProductInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Product)
+	fc.Result = res
+	return ec.marshalNProduct2ᚖgithubᚗcomᚋdavidchristieᚋcloudᚋpkgᚋgatewayᚋgraphᚋmodelᚐProduct(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteProduct(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteProduct_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteProduct(rctx, args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2735,6 +2805,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "createProduct":
 			out.Values[i] = ec._Mutation_createProduct(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deleteProduct":
+			out.Values[i] = ec._Mutation_deleteProduct(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

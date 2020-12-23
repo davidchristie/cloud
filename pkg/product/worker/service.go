@@ -1,14 +1,10 @@
 package worker
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
-	"log"
+	"sync"
 
-	"github.com/davidchristie/cloud/pkg/kafka"
-	"github.com/davidchristie/cloud/pkg/message"
 	productDatabase "github.com/davidchristie/cloud/pkg/product/database"
+	"github.com/davidchristie/cloud/pkg/product/worker/consumer"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -17,38 +13,19 @@ type specificiation struct {
 }
 
 func StartService() error {
+	var wg sync.WaitGroup
+
 	spec := specificiation{}
 	envconfig.MustProcess("", &spec)
 
 	productRepository := productDatabase.NewProductRepository(productDatabase.Connect())
 
-	topic := spec.KafkaProductCreatedTopic
+	wg.Add(1)
 
-	reader := kafka.NewReader(topic)
+	go consumer.ProductCreatedConsumer(productRepository)
+	go consumer.ProductDeletedConsumer(productRepository)
 
-	defer reader.Close()
+	wg.Wait()
 
-	fmt.Println("reading messages from topic: " + topic)
-
-	for {
-		msg, err := reader.ReadMessage(context.Background())
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Printf("message value: %v\n", string(msg.Value))
-
-		event := message.ProductCreatedEvent{}
-		err = json.Unmarshal(msg.Value, &event)
-		if err != nil {
-			fmt.Println("error consuming message, ignoring: ", err)
-		}
-
-		fmt.Printf("product created: %+v\n", event.Data)
-
-		productRepository.CreateProduct(context.Background(), event.Data)
-		if err != nil {
-			return err
-		}
-	}
+	return nil
 }

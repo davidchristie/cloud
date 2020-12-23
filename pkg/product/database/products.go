@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/davidchristie/cloud/pkg/product"
 	"github.com/google/uuid"
@@ -13,6 +14,7 @@ import (
 
 type ProductRepository interface {
 	CreateProduct(context.Context, *product.Product) error
+	DeleteProduct(context.Context, uuid.UUID) error
 	FindProduct(context.Context, uuid.UUID) (*product.Product, error)
 	FindProducts(context.Context, []uuid.UUID) (map[uuid.UUID]*product.Product, error)
 }
@@ -40,9 +42,22 @@ func NewProductRepository(database *mongo.Database) ProductRepository {
 }
 
 func (p *productRepository) CreateProduct(ctx context.Context, product *product.Product) error {
-	_, err := p.collection.InsertOne(context.Background(), product)
+	_, err := p.collection.InsertOne(ctx, product)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (p *productRepository) DeleteProduct(ctx context.Context, id uuid.UUID) error {
+	result, err := p.collection.DeleteOne(ctx, bson.D{
+		{Key: "id", Value: id},
+	})
+	if err != nil {
+		return err
+	}
+	if result.DeletedCount == 0 {
+		return fmt.Errorf("product not found: %v", id)
 	}
 	return nil
 }
