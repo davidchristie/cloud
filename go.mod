@@ -16,9 +16,8 @@ require (
 	github.com/matryer/is v1.3.0 // indirect
 	github.com/mitchellh/mapstructure v1.3.0 // indirect
 	github.com/segmentio/kafka-go v0.3.6
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.6.1
 	github.com/vektah/gqlparser/v2 v2.0.1
-	go.mongodb.org/mongo-driver v1.3.2
+	go.mongodb.org/mongo-driver v1.5.1
 	golang.org/x/net v0.0.0-20200222125558-5a598a2470a0 // indirect
-	gotest.tools v2.2.0+incompatible // indirect
 )
